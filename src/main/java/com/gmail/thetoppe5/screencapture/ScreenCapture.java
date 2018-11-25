@@ -70,6 +70,8 @@ public class ScreenCapture extends JFrame implements ActionListener, WindowListe
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.addWindowListener(this);
 
+        new HotKeyListener(this);
+        
         panel = new JPanel(new GridBagLayout());
         GridBagConstraints c = new GridBagConstraints();
 
@@ -118,7 +120,7 @@ public class ScreenCapture extends JFrame implements ActionListener, WindowListe
     /**
      * Uploads the image from clipboard
      */
-    private void upload() {
+    public void upload() {
         if (editor != null) {
             // TODO editor.dispose();
         }
@@ -176,7 +178,7 @@ public class ScreenCapture extends JFrame implements ActionListener, WindowListe
      * 
      * @return image from clipboard
      */
-    private BufferedImage getImage() {
+    public BufferedImage getImage() {
         BufferedImage image = null;
         DataFlavor flavor = DataFlavor.imageFlavor;
         if (CLIPBOARD.isDataFlavorAvailable(flavor)) {
@@ -206,28 +208,32 @@ public class ScreenCapture extends JFrame implements ActionListener, WindowListe
                     editor = new EditImage(this, image);
                 }
             } else if (src == captureButton) {
-                new Screenshot(new ScreenshotCallback() {
-
-                    @Override
-                    public void onSuccess(BufferedImage image) {
-                        if (image != null) {
-                            CLIPBOARD.setContents(new TransferableImage(image), null);
-                            // dispose previous editor if open
-                            if (editor != null) {
-                                // TODO editor.dispose();
-                            }
-                            editor = new EditImage(ScreenCapture.this, image);
-                            updateButtons();
-                        }
-                    }
-
-                    @Override
-                    public void onFailure(Exception e) {
-                        e.printStackTrace();
-                    }
-                });
+                newScreenshot();
             }
         }
+    }
+    
+    public void newScreenshot() {
+        new Screenshot(new ScreenshotCallback() {
+
+            @Override
+            public void onSuccess(BufferedImage image) {
+                if (image != null) {
+                    CLIPBOARD.setContents(new TransferableImage(image), null);
+                    // dispose previous editor if open
+                    if (editor != null) {
+                        // TODO editor.dispose();
+                    }
+                    editor = new EditImage(ScreenCapture.this, image);
+                    updateButtons();
+                }
+            }
+
+            @Override
+            public void onFailure(Exception e) {
+                e.printStackTrace();
+            }
+        });
     }
 
     /**
