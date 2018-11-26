@@ -93,7 +93,6 @@ public class EditorPanel extends JPanel implements MouseListener, MouseMotionLis
             x -= parent.getStartingDimension().getWidth();
             if (editMode == EditMode.FREE) {
                 Point p = new Point(x, y);
-
                 g.drawLine(clicked != null ? clicked.x : p.x, clicked != null ? clicked.y : p.y, x, y);
                 clicked = p;
             }

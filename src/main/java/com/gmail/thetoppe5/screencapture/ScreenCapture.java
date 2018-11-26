@@ -35,12 +35,16 @@ import com.gmail.thetoppe5.screencapture.util.TransferableImage;
 public class ScreenCapture extends JFrame implements ActionListener, WindowListener {
 
     private static final long serialVersionUID = 1L;
-    private static final Clipboard CLIPBOARD = Toolkit.getDefaultToolkit().getSystemClipboard();
+    
+    public static final Toolkit toolkit = Toolkit.getDefaultToolkit();
+    
+    public static final Clipboard CLIPBOARD = toolkit.getSystemClipboard();
 
     private final Dimension dimension = new Dimension(200, 400);
 
     private JPanel panel;
 
+    private Screenshot screenshot;
     private EditImage editor;
 
     private JButton uploadButton;
@@ -49,6 +53,7 @@ public class ScreenCapture extends JFrame implements ActionListener, WindowListe
 
     private String url;
     private boolean uploading;
+    
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(new Runnable() {
@@ -70,8 +75,10 @@ public class ScreenCapture extends JFrame implements ActionListener, WindowListe
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.addWindowListener(this);
 
-        new HotKeyListener(this);
-        
+        // register hotkeys
+        new HotKeyListener(this).register();
+        ;
+
         panel = new JPanel(new GridBagLayout());
         GridBagConstraints c = new GridBagConstraints();
 
@@ -110,12 +117,11 @@ public class ScreenCapture extends JFrame implements ActionListener, WindowListe
         panel.add(previewButton, c);
 
         this.add(panel);
-        
+
         setVisible(true);
         updateButtons();
 
     }
-    
 
     /**
      * Uploads the image from clipboard
@@ -147,7 +153,7 @@ public class ScreenCapture extends JFrame implements ActionListener, WindowListe
                             }
                         });
                     } else {
-                        //"Failed to upload image. Try again.");
+                        // "Failed to upload image. Try again.");
                     }
                 }
             });
@@ -212,12 +218,17 @@ public class ScreenCapture extends JFrame implements ActionListener, WindowListe
             }
         }
     }
-    
-    public void newScreenshot() {
-        new Screenshot(new ScreenshotCallback() {
 
+    public Screenshot newScreenshot() {
+        if (screenshot != null) {
+            screenshot.dispose();
+        }
+        this.setVisible(false);
+        return screenshot = new Screenshot(new ScreenshotCallback() {
+            
             @Override
             public void onSuccess(BufferedImage image) {
+                ScreenCapture.this.setVisible(true);
                 if (image != null) {
                     CLIPBOARD.setContents(new TransferableImage(image), null);
                     // dispose previous editor if open
@@ -231,6 +242,7 @@ public class ScreenCapture extends JFrame implements ActionListener, WindowListe
 
             @Override
             public void onFailure(Exception e) {
+                ScreenCapture.this.setVisible(true);
                 e.printStackTrace();
             }
         });
@@ -286,4 +298,9 @@ public class ScreenCapture extends JFrame implements ActionListener, WindowListe
         return dimension;
     }
 
+    
+    public Screenshot getScreenshot() {
+        return screenshot;
+    }
+    
 }

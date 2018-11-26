@@ -21,6 +21,7 @@ public class Screenshot extends JFrame {
 
     private JPanel panel;
     private JButton button;
+    private ScreenshotCallback callback;
 
     public Screenshot(ScreenshotCallback callback) {
         this.setTitle("Screen Capturer");
@@ -30,6 +31,8 @@ public class Screenshot extends JFrame {
         this.getRootPane().setWindowDecorationStyle(JRootPane.FRAME);
         this.setBackground(new Color(0, 0, 0, 0));
         this.setAlwaysOnTop(true);
+        
+        this.callback = callback;
 
         panel = new JPanel();
         panel.setOpaque(false);
@@ -40,15 +43,18 @@ public class Screenshot extends JFrame {
 
             @Override
             public void actionPerformed(ActionEvent e) {
-
-                long wait = 150;
-                new ScreenshotThread(Screenshot.this, panel, wait, callback).start();
-                lastLocation = Screenshot.this.getLocation();
+                takeScreenshot();
             }
         });
         panel.add(button);
         this.add(panel);
         this.setVisible(true);
+    }
+    
+    public void takeScreenshot() {
+        long wait = 150;
+        new ScreenshotThread(Screenshot.this, panel, wait, callback).start();
+        lastLocation = Screenshot.this.getLocation();
     }
 
     public static Point getLastLocation() {
