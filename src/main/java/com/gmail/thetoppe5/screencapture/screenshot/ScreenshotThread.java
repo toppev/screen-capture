@@ -33,21 +33,37 @@ public class ScreenshotThread extends Thread {
         Point point = panel.getLocationOnScreen();
         frame.setVisible(false);
         frame.repaint();
-        //play the sound
-        SoundPlayer.playScreenshotSound();
-        //
+        //play the sound async
+        playSoundEffectAsync();
+        //select the rectangle
         Rectangle rec = new Rectangle(point.x, point.y, panel.getWidth(), panel.getHeight());
         try {
+            //wait so the frame will be completely invisible and not included in the image
             Thread.sleep(wait);
         } catch (InterruptedException e1) {
             e1.printStackTrace();
         }
         try {
+            //take the screenshot
             Robot robot = new Robot();
             BufferedImage image = robot.createScreenCapture(rec);
             callback.onSuccess(image);
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+    
+    
+    /**
+     * Plays the sound effect asynchronously
+     */
+    private void playSoundEffectAsync() {
+        new Thread(new Runnable() {
+            
+            @Override
+            public void run() {
+                SoundPlayer.playScreenshotSound();
+            }
+        }).start();
     }
 }

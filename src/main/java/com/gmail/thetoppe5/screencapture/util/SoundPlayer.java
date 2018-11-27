@@ -9,15 +9,19 @@ import javax.sound.sampled.Clip;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
-public class SoundPlayer  {
+public class SoundPlayer {
 
-
+    /**
+     * Play sound file. Supports .wav
+     * @param file the file to play
+     * @return true if starts playing successfully, otherwise false
+     */
     public static boolean playSound(File file) {
-        if(file == null) {
+        if (file == null) {
             System.out.println("Couldn't play sound. File is null");
             return false;
         }
-        if(!file.exists()) {
+        if (!file.exists()) {
             System.out.println("Couldn't play sound. File not found: " + file.getAbsolutePath());
             return false;
         }
@@ -33,7 +37,11 @@ public class SoundPlayer  {
         }
         return false;
     }
-    
+
+    /**
+     * Plays the camera_click.wav
+     * @return true if starts playing successfully, otherwise false
+     */
     public static boolean playScreenshotSound() {
         File file = new File("src/main/resources/camera_click.wav");
         return playSound(file);
