@@ -18,6 +18,8 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -35,9 +37,9 @@ import com.gmail.thetoppe5.screencapture.util.TransferableImage;
 public class ScreenCapture extends JFrame implements ActionListener, WindowListener {
 
     private static final long serialVersionUID = 1L;
-    
+
     public static final Toolkit toolkit = Toolkit.getDefaultToolkit();
-    
+
     public static final Clipboard CLIPBOARD = toolkit.getSystemClipboard();
 
     private final Dimension dimension = new Dimension(200, 400);
@@ -53,7 +55,6 @@ public class ScreenCapture extends JFrame implements ActionListener, WindowListe
 
     private String url;
     private boolean uploading;
-    
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(new Runnable() {
@@ -77,7 +78,15 @@ public class ScreenCapture extends JFrame implements ActionListener, WindowListe
 
         // register hotkeys
         new HotKeyListener(this).register();
-        
+
+        createButtons();
+
+        setVisible(true);
+        updateButtons();
+
+    }
+    
+    private void createButtons() {
         panel = new JPanel(new GridBagLayout());
         GridBagConstraints c = new GridBagConstraints();
 
@@ -116,10 +125,6 @@ public class ScreenCapture extends JFrame implements ActionListener, WindowListe
         panel.add(previewButton, c);
 
         this.add(panel);
-
-        setVisible(true);
-        updateButtons();
-
     }
 
     /**
@@ -175,6 +180,7 @@ public class ScreenCapture extends JFrame implements ActionListener, WindowListe
      * Updates the main window buttons
      */
     private void updateButtons() {
+        //currently only thissss
         uploadButton.setEnabled(!uploading);
     }
 
@@ -219,7 +225,7 @@ public class ScreenCapture extends JFrame implements ActionListener, WindowListe
         }
         this.setVisible(false);
         return screenshot = new Screenshot(new ScreenshotCallback() {
-            
+
             @Override
             public void onSuccess(BufferedImage image) {
                 ScreenCapture.this.setVisible(true);
@@ -236,19 +242,25 @@ public class ScreenCapture extends JFrame implements ActionListener, WindowListe
             }
         });
     }
-    
+
+    /**
+     * Creates a new image editor
+     */
     private void updateEditor() {
-        // dispose previous editor
-        if (editor != null) {
-            ScreenCapture.this.remove(editor.getEditorPanel());
+        // update image in current editor
+        if (editor != null && editor.getEditorPanel() != null) {
+            editor.getEditorPanel().updateImage(getImage());
         }
-        //open new editor
-        editor = new EditImage(ScreenCapture.this, getImage());
-        updateButtons();
+        // open new editor
+        else {
+            editor = new EditImage(ScreenCapture.this, getImage());
+            repaint();
+            updateButtons();
+        }
     }
 
     /**
-     * Opens the uploaded image in browser
+     * Opens the image url in browser
      */
     private void openInBrowser() {
         if (url != null) {
@@ -297,9 +309,8 @@ public class ScreenCapture extends JFrame implements ActionListener, WindowListe
         return dimension;
     }
 
-    
     public Screenshot getScreenshot() {
         return screenshot;
     }
-    
+
 }

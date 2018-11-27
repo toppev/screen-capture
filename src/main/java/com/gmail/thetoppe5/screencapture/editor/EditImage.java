@@ -25,12 +25,7 @@ public class EditImage {
             public void run() {
                 editorPanel = new EditorPanel(bufferedImage, window);
                 window.setSize((int) (window.getStartingDimension().getWidth() + 500), 500);
-                // window.setLocationRelativeTo(null);
-                // this.setResizable(false);
-                // preview.setLocation(x, y);
                 window.add(editorPanel);
-                // window.pack();
-                // window.setVisible(true);
             }
         });
     }

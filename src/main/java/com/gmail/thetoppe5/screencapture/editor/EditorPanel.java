@@ -33,8 +33,8 @@ public class EditorPanel extends JPanel implements MouseListener, MouseMotionLis
 
     private final ScreenCapture parent;
 
-    private final BufferedImage image;
-    private final BufferedImage backupImage;
+    private BufferedImage image;
+    private BufferedImage backupImage;
 
     private EditMode editMode = EditMode.FREE;
     private Point clicked;
@@ -45,9 +45,7 @@ public class EditorPanel extends JPanel implements MouseListener, MouseMotionLis
 
     public EditorPanel(BufferedImage image, ScreenCapture parent) {
         this.setLayout(new GridLayout());
-        this.image = image;
         this.parent = parent;
-        this.backupImage = deepCopy(this.image);
         // weird stuff
         // this.setBorder(LineBorder.createBlackLineBorder());
         this.setSize(500, 500);
@@ -56,9 +54,17 @@ public class EditorPanel extends JPanel implements MouseListener, MouseMotionLis
         this.addMouseWheelListener(this);
         colorChooserFrame.setSize(colorChooser.getPreferredSize());
         colorChooserFrame.add(colorChooser);
+        updateImage(image);
         addScrollPane();
         repaint();
         updateTitle();
+    }
+    
+    
+    public void updateImage(BufferedImage newImage) {
+        this.image = newImage;
+        this.backupImage = deepCopy(this.image);
+        this.repaint();
     }
 
     private void addScrollPane() {
