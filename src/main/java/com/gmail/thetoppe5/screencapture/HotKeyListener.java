@@ -6,7 +6,6 @@ import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 
 import javax.imageio.ImageIO;
 import javax.swing.JFileChooser;
@@ -55,6 +54,7 @@ public class HotKeyListener {
                     if (ss == null) {
                         ss = screenCapture.newScreenshot();
                     }
+                    ss.setVisible(true);
                     ss.setExtendedState(JFrame.MAXIMIZED_BOTH);
                     ss.takeScreenshot();
                     return true;
@@ -71,15 +71,14 @@ public class HotKeyListener {
                         JFileChooser saver = new JFileChooser();
                         if (saver.showSaveDialog(screenCapture) == JFileChooser.APPROVE_OPTION) {
                             File file = saver.getSelectedFile();
-                            //default format
+                            // default format
                             String format = "png";
-                            
+
                             String[] s = file.getName().split("\\.");
                             if (s.length > 0 && s[s.length - 1].length() > 0) {
                                 format = s[s.length - 1];
-                            }
-                            else {
-                               file = new File(file.getPath() + "." + format);
+                            } else {
+                                file = new File(file.getPath() + "." + format);
                             }
                             System.out.println("format: " + format);
                             try {

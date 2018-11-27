@@ -33,8 +33,6 @@ public class ScreenshotThread extends Thread {
         Point point = panel.getLocationOnScreen();
         frame.setVisible(false);
         frame.repaint();
-        //play the sound async
-        playSoundEffectAsync();
         //select the rectangle
         Rectangle rec = new Rectangle(point.x, point.y, panel.getWidth(), panel.getHeight());
         try {
@@ -53,17 +51,4 @@ public class ScreenshotThread extends Thread {
         }
     }
     
-    
-    /**
-     * Plays the sound effect asynchronously
-     */
-    private void playSoundEffectAsync() {
-        new Thread(new Runnable() {
-            
-            @Override
-            public void run() {
-                SoundPlayer.playScreenshotSound();
-            }
-        }).start();
-    }
 }

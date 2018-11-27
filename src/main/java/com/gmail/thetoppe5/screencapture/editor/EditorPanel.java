@@ -33,43 +33,56 @@ public class EditorPanel extends JPanel implements MouseListener, MouseMotionLis
 
     private final ScreenCapture parent;
 
+    // image stuff
     private BufferedImage image;
     private BufferedImage backupImage;
 
+    // stuff concerning painting (modes, size, last clicked point)
     private EditMode editMode = EditMode.FREE;
-    private Point clicked;
     private int size = 10;
+    private Point clicked;
+
+    // color stuff
     private Color color = Color.RED;
     private JColorChooser colorChooser = new JColorChooser(color);
     private JFrame colorChooserFrame = new JFrame();
 
-    public EditorPanel(BufferedImage image, ScreenCapture parent) {
+    public EditorPanel(ScreenCapture screenCapture) {
         this.setLayout(new GridLayout());
-        this.parent = parent;
-        // weird stuff
-        // this.setBorder(LineBorder.createBlackLineBorder());
+        this.parent = screenCapture;
         this.setSize(500, 500);
         this.addMouseListener(this);
         this.addMouseMotionListener(this);
         this.addMouseWheelListener(this);
         colorChooserFrame.setSize(colorChooser.getPreferredSize());
         colorChooserFrame.add(colorChooser);
-        updateImage(image);
         addScrollPane();
-        repaint();
-        updateTitle();
     }
-    
-    
+
+    public EditorPanel(BufferedImage image, ScreenCapture screenCapture) {
+        this.setLayout(new GridLayout());
+        this.parent = screenCapture;
+        this.setSize(500, 500);
+        this.addMouseListener(this);
+        this.addMouseMotionListener(this);
+        this.addMouseWheelListener(this);
+        colorChooserFrame.setSize(colorChooser.getPreferredSize());
+        colorChooserFrame.add(colorChooser);
+        addScrollPane();
+        updateImage(image);
+    }
+
     public void updateImage(BufferedImage newImage) {
+        //TODO something wrong somewhere
         this.image = newImage;
-        this.backupImage = deepCopy(this.image);
-        this.repaint();
+        this.backupImage = deepCopy(image);
+        parent.repaint();
+        updateTitle();
     }
 
     private void addScrollPane() {
         SwingUtilities.invokeLater(new Runnable() {
-            
+
             @Override
             public void run() {
                 JScrollPane scroll = new JScrollPane(EditorPanel.this);
@@ -85,9 +98,11 @@ public class EditorPanel extends JPanel implements MouseListener, MouseMotionLis
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
-        g.drawImage(image, (int) parent.getStartingDimension().getWidth(), 0, image.getWidth(), image.getHeight(),
-                this);
-        parent.repaint();
+        // draw the image if it's not null
+        if (image != null) {
+            g.drawImage(image, (int) parent.getStartingDimension().getWidth(), 0, image.getWidth(), image.getHeight(),
+                    this);
+        }
     }
 
     public void mouse(int x, int y) {
@@ -130,7 +145,7 @@ public class EditorPanel extends JPanel implements MouseListener, MouseMotionLis
                 g.drawImage(subImage, x, y, w, h, this);
 
             }
-            this.repaint();
+            parent.repaint();
         }
     }
 

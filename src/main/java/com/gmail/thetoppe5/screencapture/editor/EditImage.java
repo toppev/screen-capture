@@ -18,14 +18,31 @@ public class EditImage {
      * @param bufferedImage
      *            image to edit
      */
-    public EditImage(ScreenCapture window, BufferedImage bufferedImage) {
+    public EditImage(ScreenCapture screenCapture, BufferedImage bufferedImage) {
         SwingUtilities.invokeLater(new Runnable() {
 
             @Override
             public void run() {
-                editorPanel = new EditorPanel(bufferedImage, window);
-                window.setSize((int) (window.getStartingDimension().getWidth() + 500), 500);
-                window.add(editorPanel);
+                editorPanel = new EditorPanel(bufferedImage, screenCapture);
+                screenCapture.setSize((int) (screenCapture.getStartingDimension().getWidth() + 500), 500);
+                screenCapture.add(editorPanel);
+            }
+        });
+    }
+    
+
+    /**
+     * Initializes the window for better performance
+     * 
+     */
+    public EditImage(ScreenCapture screenCapture) {
+        SwingUtilities.invokeLater(new Runnable() {
+
+            @Override
+            public void run() {
+                editorPanel = new EditorPanel(screenCapture);
+                screenCapture.setSize((int) (screenCapture.getStartingDimension().getWidth() + 500), 500);
+                screenCapture.add(editorPanel);
             }
         });
     }

@@ -224,7 +224,7 @@ public class ScreenCapture extends JFrame implements ActionListener, WindowListe
             screenshot.dispose();
         }
         this.setVisible(false);
-        return screenshot = new Screenshot(new ScreenshotCallback() {
+        screenshot = new Screenshot(new ScreenshotCallback() {
 
             @Override
             public void onSuccess(BufferedImage image) {
@@ -241,6 +241,10 @@ public class ScreenCapture extends JFrame implements ActionListener, WindowListe
                 e.printStackTrace();
             }
         });
+        //start opening the EditImage/EditorPanel in background for better performance
+        //null image just to initialize everything else
+        editor = new EditImage(this);
+        return screenshot;
     }
 
     /**
@@ -251,7 +255,7 @@ public class ScreenCapture extends JFrame implements ActionListener, WindowListe
         if (editor != null && editor.getEditorPanel() != null) {
             editor.getEditorPanel().updateImage(getImage());
         }
-        // open new editor
+        // open new editor (probably never reaches here)
         else {
             editor = new EditImage(ScreenCapture.this, getImage());
             repaint();
