@@ -77,8 +77,7 @@ public class ScreenCapture extends JFrame implements ActionListener, WindowListe
 
         // register hotkeys
         new HotKeyListener(this).register();
-        ;
-
+        
         panel = new JPanel(new GridBagLayout());
         GridBagConstraints c = new GridBagConstraints();
 
@@ -128,7 +127,7 @@ public class ScreenCapture extends JFrame implements ActionListener, WindowListe
      */
     public void upload() {
         if (editor != null) {
-            // TODO editor.dispose();
+            this.remove(editor.getEditorPanel());
         }
         if (getImage() != null) {
             uploading = true;
@@ -191,7 +190,6 @@ public class ScreenCapture extends JFrame implements ActionListener, WindowListe
             try {
                 image = (BufferedImage) CLIPBOARD.getData(flavor);
             } catch (UnsupportedFlavorException | IOException e1) {
-                // TODO
                 e1.printStackTrace();
             }
         }
@@ -207,11 +205,7 @@ public class ScreenCapture extends JFrame implements ActionListener, WindowListe
             } else if (src == previewButton) {
                 BufferedImage image = getImage();
                 if (image != null) {
-                    // dispose previous editor if open
-                    if (editor != null) {
-                        // TODO editor.dispose();
-                    }
-                    editor = new EditImage(this, image);
+                    updateEditor();
                 }
             } else if (src == captureButton) {
                 newScreenshot();
@@ -231,12 +225,7 @@ public class ScreenCapture extends JFrame implements ActionListener, WindowListe
                 ScreenCapture.this.setVisible(true);
                 if (image != null) {
                     CLIPBOARD.setContents(new TransferableImage(image), null);
-                    // dispose previous editor if open
-                    if (editor != null) {
-                        // TODO editor.dispose();
-                    }
-                    editor = new EditImage(ScreenCapture.this, image);
-                    updateButtons();
+                    updateEditor();
                 }
             }
 
@@ -246,6 +235,16 @@ public class ScreenCapture extends JFrame implements ActionListener, WindowListe
                 e.printStackTrace();
             }
         });
+    }
+    
+    private void updateEditor() {
+        // dispose previous editor
+        if (editor != null) {
+            ScreenCapture.this.remove(editor.getEditorPanel());
+        }
+        //open new editor
+        editor = new EditImage(ScreenCapture.this, getImage());
+        updateButtons();
     }
 
     /**
