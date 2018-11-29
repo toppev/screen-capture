@@ -1,4 +1,4 @@
-package com.gmail.thetoppe5.screencapture.editor;
+package com.gmail.thetoppe5.screencapture.userhelp;
 
 import java.util.Timer;
 import java.util.TimerTask;
