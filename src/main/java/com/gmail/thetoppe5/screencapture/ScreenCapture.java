@@ -1,11 +1,8 @@
 package com.gmail.thetoppe5.screencapture;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Cursor;
-import java.awt.Desktop;
 import java.awt.Dimension;
-import java.awt.Graphics2D;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -20,8 +17,6 @@ import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -35,6 +30,8 @@ import com.gmail.thetoppe5.screencapture.screenshot.ScreenshotCallback;
 import com.gmail.thetoppe5.screencapture.uploader.IUploader;
 import com.gmail.thetoppe5.screencapture.uploader.UploadProvider;
 import com.gmail.thetoppe5.screencapture.userhelp.HelpButton;
+import com.gmail.thetoppe5.screencapture.util.DesktopUtil;
+import com.gmail.thetoppe5.screencapture.util.ImageUtil;
 import com.gmail.thetoppe5.screencapture.util.TransferableImage;
 
 public class ScreenCapture extends JFrame implements ActionListener, WindowListener {
@@ -54,6 +51,7 @@ public class ScreenCapture extends JFrame implements ActionListener, WindowListe
 
     private JButton uploadButton;
     private JButton captureButton;
+    private JButton blankImageButton;
 
     private String url;
     private boolean uploading;
@@ -85,7 +83,6 @@ public class ScreenCapture extends JFrame implements ActionListener, WindowListe
 
         setVisible(true);
         updateButtons();
-
     }
 
     /**
@@ -103,19 +100,26 @@ public class ScreenCapture extends JFrame implements ActionListener, WindowListe
         c.insets = new Insets(25, 10, 25, 10);
         c.fill = GridBagConstraints.HORIZONTAL;
         // size of the buttons
-        c.ipady = 40;
+        c.ipady = 30;
         panel.add(captureButton, c);
 
         uploadButton = new JButton();
         uploadButton.setText("Upload Clipboard");
         uploadButton.addActionListener(this);
         uploadButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        uploadButton.setEnabled(getImage() != null);
-        c.gridy = 3;
+        uploadButton.setEnabled(getClipboardImage() != null);
+        c.gridy = 2;
         panel.add(uploadButton, c);
-        
-        //add help button
-        c.gridy = 5;
+
+        blankImageButton = new JButton();
+        blankImageButton.setText("Blank Image");
+        blankImageButton.addActionListener(this);
+        blankImageButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        c.gridy = 3;
+        panel.add(blankImageButton, c);
+
+        // add help button
+        c.gridy = 4;
         panel.add(new HelpButton(this), c);
 
         // layout for this JFrame
@@ -137,7 +141,7 @@ public class ScreenCapture extends JFrame implements ActionListener, WindowListe
         if (editor != null) {
             this.remove(editor);
         }
-        if (getImage() != null) {
+        if (editor.getImage() != null) {
             uploading = true;
             updateButtons();
             Thread thread = new Thread(new Runnable() {
@@ -145,7 +149,7 @@ public class ScreenCapture extends JFrame implements ActionListener, WindowListe
                 @Override
                 public void run() {
                     IUploader uploader = UploadProvider.getProvider();
-                    String url = uploader.upload(getImage());
+                    String url = uploader.upload(editor.getImage());
                     if (url != null) {
                         SwingUtilities.invokeLater(new Runnable() {
 
@@ -174,7 +178,7 @@ public class ScreenCapture extends JFrame implements ActionListener, WindowListe
             int response = JOptionPane.showOptionDialog(null, "Link copied to clipboard", "Upload success!",
                     JOptionPane.DEFAULT_OPTION, JOptionPane.PLAIN_MESSAGE, null, options, options[0]);
             if (response == 0) {
-                openInBrowser();
+                DesktopUtil.openInBrowser(url);
             }
         }
     }
@@ -192,7 +196,7 @@ public class ScreenCapture extends JFrame implements ActionListener, WindowListe
      * 
      * @return image from clipboard
      */
-    public BufferedImage getImage() {
+    public BufferedImage getClipboardImage() {
         BufferedImage image = null;
         DataFlavor flavor = DataFlavor.imageFlavor;
         if (CLIPBOARD.isDataFlavorAvailable(flavor)) {
@@ -202,15 +206,7 @@ public class ScreenCapture extends JFrame implements ActionListener, WindowListe
                 e1.printStackTrace();
             }
         }
-        return image != null ? image : blankImage(500, 500);
-    }
-
-    private BufferedImage blankImage(int width, int height) {
-        BufferedImage bi = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
-        Graphics2D g = bi.createGraphics();
-        g.setBackground(Color.WHITE);
-        g.clearRect(0, 0, width, height);
-        return bi;
+        return image;
     }
 
     @Override
@@ -221,6 +217,8 @@ public class ScreenCapture extends JFrame implements ActionListener, WindowListe
                 upload();
             } else if (src == captureButton) {
                 newScreenshot();
+            } else if (src == blankImageButton) {
+                BlankImageFrame newBlank = new BlankImageFrame(this);
             }
         }
     }
@@ -251,35 +249,37 @@ public class ScreenCapture extends JFrame implements ActionListener, WindowListe
     }
 
     /**
-     * Creates a new image editor
+     * updates/creates EditorPanel with clipboard image or blank image
      */
-    private void updateEditor() {
+    public void updateEditor() {
+        // get the clipboard image or if null return new blank image
+        BufferedImage image = getClipboardImage() == null ? ImageUtil.blankImage(600, 600) : getClipboardImage();
+        updateEditor(image);
+    }
+
+    public void updateEditor(BufferedImage image) {
         // update image in current editor
         if (editor != null) {
-            editor.updateImage(getImage());
+            editor.updateImage(image);
         }
         // open new editor
         else {
-            editor = new EditorPanel(getImage(), ScreenCapture.this);
+            editor = new EditorPanel(image, ScreenCapture.this);
             repaint();
             updateButtons();
         }
     }
 
     /**
-     * Opens the image url in browser
+     * Gets the current image in editor or if null then clipboard image
+     * 
+     * @return
      */
-    private void openInBrowser() {
-        if (url != null) {
-            Desktop desktop = Desktop.isDesktopSupported() ? Desktop.getDesktop() : null;
-            if (desktop != null && desktop.isSupported(Desktop.Action.BROWSE)) {
-                try {
-                    desktop.browse(new URI(url));
-                } catch (IOException | URISyntaxException e1) {
-                    e1.printStackTrace();
-                }
-            }
+    public BufferedImage getImage() {
+        if (editor != null && editor.getImage() != null) {
+            return editor.getImage();
         }
+        return getClipboardImage();
     }
 
     @Override
@@ -314,6 +314,10 @@ public class ScreenCapture extends JFrame implements ActionListener, WindowListe
 
     public Screenshot getScreenshot() {
         return screenshot;
+    }
+
+    public EditorPanel getEditor() {
+        return editor;
     }
 
 }
