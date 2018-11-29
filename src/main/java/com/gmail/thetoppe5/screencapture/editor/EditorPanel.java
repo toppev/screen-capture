@@ -211,8 +211,7 @@ public class EditorPanel extends JPanel implements MouseListener, MouseMotionLis
     @Override
     public void mouseMoved(MouseEvent e) {
     }
-    
-    
+
     public BufferedImage getImage() {
         return image;
     }

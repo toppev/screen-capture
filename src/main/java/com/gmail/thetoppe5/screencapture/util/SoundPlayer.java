@@ -13,7 +13,9 @@ public class SoundPlayer {
 
     /**
      * Play sound file. Supports .wav
-     * @param file the file to play
+     * 
+     * @param file
+     *            the file to play
      * @return true if starts playing successfully, otherwise false
      */
     public static boolean playSound(File file) {
@@ -40,6 +42,7 @@ public class SoundPlayer {
 
     /**
      * Plays the camera_click.wav
+     * 
      * @return true if starts playing successfully, otherwise false
      */
     public static boolean playScreenshotSound() {
