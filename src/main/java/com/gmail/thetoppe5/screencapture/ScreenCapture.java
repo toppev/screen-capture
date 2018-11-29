@@ -34,6 +34,7 @@ import com.gmail.thetoppe5.screencapture.screenshot.Screenshot;
 import com.gmail.thetoppe5.screencapture.screenshot.ScreenshotCallback;
 import com.gmail.thetoppe5.screencapture.uploader.IUploader;
 import com.gmail.thetoppe5.screencapture.uploader.UploadProvider;
+import com.gmail.thetoppe5.screencapture.userhelp.HelpButton;
 import com.gmail.thetoppe5.screencapture.util.TransferableImage;
 
 public class ScreenCapture extends JFrame implements ActionListener, WindowListener {
@@ -93,15 +94,15 @@ public class ScreenCapture extends JFrame implements ActionListener, WindowListe
     private void createButtons() {
         panel = new JPanel(new GridBagLayout());
         GridBagConstraints c = new GridBagConstraints();
-        panel.setPreferredSize(new Dimension(200, 500));
-        
+        panel.setPreferredSize(new Dimension(150, 500));
+
         captureButton = new JButton();
         captureButton.setText("New Screenshot");
         captureButton.addActionListener(this);
         captureButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        c.insets = new Insets(25, 25, 25, 25);
+        c.insets = new Insets(25, 10, 25, 10);
         c.fill = GridBagConstraints.HORIZONTAL;
-        //size of the buttons
+        // size of the buttons
         c.ipady = 40;
         panel.add(captureButton, c);
 
@@ -112,16 +113,20 @@ public class ScreenCapture extends JFrame implements ActionListener, WindowListe
         uploadButton.setEnabled(getImage() != null);
         c.gridy = 3;
         panel.add(uploadButton, c);
-
-        //layout for this JFrame
-        this.setLayout(new BorderLayout());
-        //add buttons panel to the JFrame
-        this.add(panel, BorderLayout.WEST);
         
+        //add help button
+        c.gridy = 5;
+        panel.add(new HelpButton(this), c);
+
+        // layout for this JFrame
+        this.setLayout(new BorderLayout());
+        // add buttons panel to the JFrame
+        this.add(panel, BorderLayout.WEST);
+
         // open blank image
         updateEditor();
-        
-        //add it to this JFrame
+
+        // add it to this JFrame
         this.add(editor, BorderLayout.EAST);
     }
 
