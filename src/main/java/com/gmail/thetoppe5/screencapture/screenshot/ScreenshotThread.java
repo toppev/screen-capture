@@ -8,8 +8,6 @@ import java.awt.image.BufferedImage;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
-import com.gmail.thetoppe5.screencapture.util.SoundPlayer;
-
 public class ScreenshotThread extends Thread {
 
     private final JPanel panel;
@@ -33,16 +31,16 @@ public class ScreenshotThread extends Thread {
         Point point = panel.getLocationOnScreen();
         frame.setVisible(false);
         frame.repaint();
-        //select the rectangle
+        // select the rectangle
         Rectangle rec = new Rectangle(point.x, point.y, panel.getWidth(), panel.getHeight());
         try {
-            //wait so the frame will be completely invisible and not included in the image
+            // wait so the frame will be completely invisible and not included in the image
             Thread.sleep(wait);
         } catch (InterruptedException e1) {
             e1.printStackTrace();
         }
         try {
-            //take the screenshot
+            // take the screenshot
             Robot robot = new Robot();
             BufferedImage image = robot.createScreenCapture(rec);
             callback.onSuccess(image);
@@ -50,5 +48,5 @@ public class ScreenshotThread extends Thread {
             e.printStackTrace();
         }
     }
-    
+
 }

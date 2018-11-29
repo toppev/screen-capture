@@ -33,7 +33,7 @@ public class Screenshot extends JFrame {
         this.getRootPane().setWindowDecorationStyle(JRootPane.FRAME);
         this.setBackground(new Color(0, 0, 0, 0));
         this.setAlwaysOnTop(true);
-        
+
         this.callback = callback;
 
         panel = new JPanel();
@@ -52,22 +52,21 @@ public class Screenshot extends JFrame {
         this.add(panel);
         this.setVisible(true);
     }
-    
+
     public void takeScreenshot() {
         long wait = 150;
-        //play the sound async
+        // play the sound async
         playSoundEffectAsync();
         new ScreenshotThread(Screenshot.this, panel, wait, callback).start();
         lastLocation = Screenshot.this.getLocation();
     }
-    
-    
+
     /**
      * Plays the sound effect asynchronously
      */
     private void playSoundEffectAsync() {
         new Thread(new Runnable() {
-            
+
             @Override
             public void run() {
                 SoundPlayer.playScreenshotSound();
