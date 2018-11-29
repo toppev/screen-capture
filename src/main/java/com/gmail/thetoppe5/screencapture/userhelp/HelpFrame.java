@@ -22,7 +22,7 @@ public class HelpFrame {
             @Override
             public void run() {
 
-                long keepOpen = 1000 * 5;
+                long keepOpen = 1000 * 20;
 
                 JOptionPane help = new JOptionPane("Use mouse 1 to draw, mouse 2 to change color,"
                         + "mouse 3 to erase and scroll to change font size.", JOptionPane.INFORMATION_MESSAGE);
