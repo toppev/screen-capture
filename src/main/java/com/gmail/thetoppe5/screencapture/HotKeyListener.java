@@ -32,12 +32,12 @@ public class HotKeyListener {
 
             @Override
             public boolean dispatchKeyEvent(KeyEvent e) {
-                //ignore release
+                // ignore release
                 if (e.getID() != KeyEvent.KEY_PRESSED) {
                     return false;
                 }
-                //ignore if not main frame
-                if(e.getComponent() != screenCapture) {
+                // ignore if not main frame
+                if (e.getComponent() != screenCapture) {
                     return false;
                 }
                 int key = e.getKeyCode();
