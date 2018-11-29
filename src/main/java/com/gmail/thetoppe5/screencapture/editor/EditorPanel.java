@@ -4,7 +4,6 @@ import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.GridLayout;
 import java.awt.Point;
 import java.awt.RenderingHints;
 import java.awt.event.MouseEvent;
@@ -16,6 +15,7 @@ import java.awt.image.BufferedImage;
 import java.awt.image.ColorModel;
 import java.awt.image.WritableRaster;
 
+import javax.swing.BorderFactory;
 import javax.swing.JColorChooser;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -47,22 +47,10 @@ public class EditorPanel extends JPanel implements MouseListener, MouseMotionLis
     private JColorChooser colorChooser = new JColorChooser(color);
     private JFrame colorChooserFrame = new JFrame();
 
-    public EditorPanel(ScreenCapture screenCapture) {
-        this.setLayout(new GridLayout());
-        this.parent = screenCapture;
-        this.setSize(500, 500);
-        this.addMouseListener(this);
-        this.addMouseMotionListener(this);
-        this.addMouseWheelListener(this);
-        colorChooserFrame.setSize(colorChooser.getPreferredSize());
-        colorChooserFrame.add(colorChooser);
-        addScrollPane();
-    }
-
     public EditorPanel(BufferedImage image, ScreenCapture screenCapture) {
-        this.setLayout(new GridLayout());
         this.parent = screenCapture;
-        this.setSize(500, 500);
+        this.setSize(image.getWidth(), image.getHeight());
+        this.setBorder(BorderFactory.createLineBorder(Color.DARK_GRAY));
         this.addMouseListener(this);
         this.addMouseMotionListener(this);
         this.addMouseWheelListener(this);
@@ -73,9 +61,11 @@ public class EditorPanel extends JPanel implements MouseListener, MouseMotionLis
     }
 
     public void updateImage(BufferedImage newImage) {
-        //TODO something wrong somewhere
-        this.image = newImage;
-        this.backupImage = deepCopy(image);
+        // TODO something wrong somewhere
+        if (newImage != null) {
+            this.image = newImage;
+            this.backupImage = deepCopy(image);
+        }
         parent.repaint();
         updateTitle();
     }
@@ -98,10 +88,9 @@ public class EditorPanel extends JPanel implements MouseListener, MouseMotionLis
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
-        // draw the image if it's not null
+        // draw the image
         if (image != null) {
-            g.drawImage(image, (int) parent.getStartingDimension().getWidth(), 0, image.getWidth(), image.getHeight(),
-                    this);
+            g.drawImage(image, 0, 0, image.getWidth(), image.getHeight(), this);
         }
     }
 
@@ -111,7 +100,7 @@ public class EditorPanel extends JPanel implements MouseListener, MouseMotionLis
         g.setStroke(new BasicStroke(size, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
         g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
         if (editMode != null) {
-            x -= parent.getStartingDimension().getWidth();
+            // x -= parent.getStartingDimension().getWidth();
             if (editMode == EditMode.FREE) {
                 Point p = new Point(x, y);
                 g.drawLine(clicked != null ? clicked.x : p.x, clicked != null ? clicked.y : p.y, x, y);

@@ -1,10 +1,14 @@
 package com.gmail.thetoppe5.screencapture;
 
+import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Desktop;
 import java.awt.Dimension;
+import java.awt.Graphics2D;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.Insets;
 import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.DataFlavor;
@@ -18,8 +22,6 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.Timer;
-import java.util.TimerTask;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -27,7 +29,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
-import com.gmail.thetoppe5.screencapture.editor.EditImage;
+import com.gmail.thetoppe5.screencapture.editor.EditorPanel;
 import com.gmail.thetoppe5.screencapture.screenshot.Screenshot;
 import com.gmail.thetoppe5.screencapture.screenshot.ScreenshotCallback;
 import com.gmail.thetoppe5.screencapture.uploader.IUploader;
@@ -42,16 +44,15 @@ public class ScreenCapture extends JFrame implements ActionListener, WindowListe
 
     public static final Clipboard CLIPBOARD = toolkit.getSystemClipboard();
 
-    private final Dimension dimension = new Dimension(200, 400);
+    private final Dimension dimension = new Dimension(700, 500);
 
     private JPanel panel;
 
     private Screenshot screenshot;
-    private EditImage editor;
+    private EditorPanel editor;
 
     private JButton uploadButton;
     private JButton captureButton;
-    private JButton previewButton;
 
     private String url;
     private boolean uploading;
@@ -85,23 +86,23 @@ public class ScreenCapture extends JFrame implements ActionListener, WindowListe
         updateButtons();
 
     }
-    
+
+    /**
+     * Creates and adds screenshot and upload buttons
+     */
     private void createButtons() {
         panel = new JPanel(new GridBagLayout());
         GridBagConstraints c = new GridBagConstraints();
-
+        panel.setPreferredSize(new Dimension(200, 500));
+        
         captureButton = new JButton();
         captureButton.setText("New Screenshot");
         captureButton.addActionListener(this);
         captureButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        c.insets = new Insets(25, 25, 25, 25);
         c.fill = GridBagConstraints.HORIZONTAL;
-        c.anchor = GridBagConstraints.PAGE_START;
-        c.ipady = 0;
-        c.weighty = 1.0;
+        //size of the buttons
         c.ipady = 40;
-        c.gridx = 0;
-        c.gridy = 0;
-
         panel.add(captureButton, c);
 
         uploadButton = new JButton();
@@ -109,22 +110,19 @@ public class ScreenCapture extends JFrame implements ActionListener, WindowListe
         uploadButton.addActionListener(this);
         uploadButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
         uploadButton.setEnabled(getImage() != null);
-        c.fill = GridBagConstraints.HORIZONTAL;
-        c.weightx = 0.5;
-        c.gridy++;
-        c.gridx = 0;
+        c.gridy = 3;
         panel.add(uploadButton, c);
 
-        previewButton = new JButton();
-        previewButton.setText("Preview");
-        previewButton.addActionListener(this);
-        previewButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        c.fill = GridBagConstraints.HORIZONTAL;
-        c.weightx = 0.5;
-        c.gridy++;
-        panel.add(previewButton, c);
-
-        this.add(panel);
+        //layout for this JFrame
+        this.setLayout(new BorderLayout());
+        //add buttons panel to the JFrame
+        this.add(panel, BorderLayout.WEST);
+        
+        // open blank image
+        updateEditor();
+        
+        //add it to this JFrame
+        this.add(editor, BorderLayout.EAST);
     }
 
     /**
@@ -132,7 +130,7 @@ public class ScreenCapture extends JFrame implements ActionListener, WindowListe
      */
     public void upload() {
         if (editor != null) {
-            this.remove(editor.getEditorPanel());
+            this.remove(editor);
         }
         if (getImage() != null) {
             uploading = true;
@@ -180,7 +178,7 @@ public class ScreenCapture extends JFrame implements ActionListener, WindowListe
      * Updates the main window buttons
      */
     private void updateButtons() {
-        //currently only thissss
+        // currently only thissss
         uploadButton.setEnabled(!uploading);
     }
 
@@ -199,7 +197,15 @@ public class ScreenCapture extends JFrame implements ActionListener, WindowListe
                 e1.printStackTrace();
             }
         }
-        return image;
+        return image != null ? image : blankImage(500, 500);
+    }
+
+    private BufferedImage blankImage(int width, int height) {
+        BufferedImage bi = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+        Graphics2D g = bi.createGraphics();
+        g.setBackground(Color.WHITE);
+        g.clearRect(0, 0, width, height);
+        return bi;
     }
 
     @Override
@@ -208,11 +214,6 @@ public class ScreenCapture extends JFrame implements ActionListener, WindowListe
         if (src != null) {
             if (src == uploadButton) {
                 upload();
-            } else if (src == previewButton) {
-                BufferedImage image = getImage();
-                if (image != null) {
-                    updateEditor();
-                }
             } else if (src == captureButton) {
                 newScreenshot();
             }
@@ -241,9 +242,6 @@ public class ScreenCapture extends JFrame implements ActionListener, WindowListe
                 e.printStackTrace();
             }
         });
-        //start opening the EditImage/EditorPanel in background for better performance
-        //null image just to initialize everything else
-        editor = new EditImage(this);
         return screenshot;
     }
 
@@ -252,12 +250,12 @@ public class ScreenCapture extends JFrame implements ActionListener, WindowListe
      */
     private void updateEditor() {
         // update image in current editor
-        if (editor != null && editor.getEditorPanel() != null) {
-            editor.getEditorPanel().updateImage(getImage());
+        if (editor != null) {
+            editor.updateImage(getImage());
         }
-        // open new editor (probably never reaches here)
+        // open new editor
         else {
-            editor = new EditImage(ScreenCapture.this, getImage());
+            editor = new EditorPanel(getImage(), ScreenCapture.this);
             repaint();
             updateButtons();
         }
@@ -307,10 +305,6 @@ public class ScreenCapture extends JFrame implements ActionListener, WindowListe
 
     @Override
     public void windowOpened(WindowEvent arg0) {
-    }
-
-    public Dimension getStartingDimension() {
-        return dimension;
     }
 
     public Screenshot getScreenshot() {
