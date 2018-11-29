@@ -2,6 +2,7 @@ package com.gmail.thetoppe5.screencapture.editor;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
@@ -54,6 +55,7 @@ public class EditorPanel extends JPanel implements MouseListener, MouseMotionLis
         this.addMouseListener(this);
         this.addMouseMotionListener(this);
         this.addMouseWheelListener(this);
+        this.setPreferredSize(new Dimension(image.getWidth(), image.getHeight()));
         colorChooserFrame.setSize(colorChooser.getPreferredSize());
         colorChooserFrame.add(colorChooser);
         addScrollPane();
@@ -76,8 +78,8 @@ public class EditorPanel extends JPanel implements MouseListener, MouseMotionLis
             @Override
             public void run() {
                 JScrollPane scroll = new JScrollPane(EditorPanel.this);
-                scroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
-                scroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+                scroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+                scroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
                 scroll.setVisible(true);
                 parent.add(scroll);
             }
@@ -90,7 +92,7 @@ public class EditorPanel extends JPanel implements MouseListener, MouseMotionLis
         super.paintComponent(g);
         // draw the image
         if (image != null) {
-            g.drawImage(image, 0, 0, image.getWidth(), image.getHeight(), this);
+            g.drawImage(image, 0, 0, this);
         }
     }
 
@@ -100,7 +102,6 @@ public class EditorPanel extends JPanel implements MouseListener, MouseMotionLis
         g.setStroke(new BasicStroke(size, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
         g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
         if (editMode != null) {
-            // x -= parent.getStartingDimension().getWidth();
             if (editMode == EditMode.FREE) {
                 Point p = new Point(x, y);
                 g.drawLine(clicked != null ? clicked.x : p.x, clicked != null ? clicked.y : p.y, x, y);
@@ -209,6 +210,11 @@ public class EditorPanel extends JPanel implements MouseListener, MouseMotionLis
 
     @Override
     public void mouseMoved(MouseEvent e) {
+    }
+    
+    
+    public BufferedImage getImage() {
+        return image;
     }
 
 }
