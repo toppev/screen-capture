@@ -37,8 +37,8 @@ public class HotKeyListener {
                 if (e.getID() != KeyEvent.KEY_PRESSED) {
                     return false;
                 }
-                //is the main frame
-                if(FocusManager.getCurrentManager().getActiveWindow() != screenCapture) {
+                // is the main frame
+                if (FocusManager.getCurrentManager().getActiveWindow() != screenCapture) {
                     return false;
                 }
                 int key = e.getKeyCode();

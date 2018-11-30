@@ -1,7 +1,11 @@
 package com.gmail.thetoppe5.screencapture.util;
 
+import java.io.BufferedInputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
@@ -11,12 +15,35 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 
 public class SoundPlayer {
 
+
     /**
-     * Play sound file. Supports .wav
-     * 
-     * @param file
-     *            the file to play
-     * @return true if starts playing successfully, otherwise false
+     * Plays InputStream as sound
+     * @param input input stream to play
+     * @return true if started playing successfully
+     */
+    public static boolean playSound(InputStream input) {
+        //make sure the input supports mark/reset
+        InputStream bufferedIn = new BufferedInputStream(input);
+        
+        AudioInputStream audioInputStream;
+        try {
+            //read the audio
+            audioInputStream = AudioSystem.getAudioInputStream(bufferedIn);
+            Clip clip = AudioSystem.getClip();
+            //open and start playing
+            clip.open(audioInputStream);
+            clip.start();
+            return true;
+        } catch (UnsupportedAudioFileException | IOException | LineUnavailableException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+    
+    /**
+     * Plays File as sound. Supports .wav
+     * @param filo to play
+     * @return true if started playing successfully
      */
     public static boolean playSound(File file) {
         if (file == null) {
@@ -27,17 +54,13 @@ public class SoundPlayer {
             System.out.println("Couldn't play sound. File not found: " + file.getAbsolutePath());
             return false;
         }
-        AudioInputStream audioInputStream;
+        InputStream input = null;
         try {
-            audioInputStream = AudioSystem.getAudioInputStream(file);
-            Clip clip = AudioSystem.getClip();
-            clip.open(audioInputStream);
-            clip.start();
-            return true;
-        } catch (UnsupportedAudioFileException | IOException | LineUnavailableException e) {
+            input = new FileInputStream(file);
+        } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
-        return false;
+        return playSound(input);
     }
 
     /**
@@ -46,7 +69,7 @@ public class SoundPlayer {
      * @return true if starts playing successfully, otherwise false
      */
     public static boolean playScreenshotSound() {
-        File file = new File("src/main/resources/camera_click.wav");
-        return playSound(file);
+        InputStream stream = ResourceUtil.getResource("camera_click.wav");
+        return playSound(stream);
     }
 }
