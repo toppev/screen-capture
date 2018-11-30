@@ -10,9 +10,9 @@ Press the upload button to upload the image to Imgur via their API.
 
 
 Key binds:
-  ESCAPE - quit
-  CTRL + N - opens the screenshot area selection frame
-  CTRL + A - takes a full screen screenshot
-  CTRL + U - uploads the image to Imgur
-  CTRL + S - save the image to disk
+ESCAPE - quit
+CTRL + N - opens the screenshot area selection frame
+CTRL + A - takes a full screen screenshot
+CTRL + U - uploads the image to Imgur
+CTRL + S - save the image to disk
   
