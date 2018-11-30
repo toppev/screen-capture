@@ -218,7 +218,7 @@ public class ScreenCapture extends JFrame implements ActionListener, WindowListe
             } else if (src == captureButton) {
                 newScreenshot();
             } else if (src == blankImageButton) {
-                BlankImageFrame newBlank = new BlankImageFrame(this);
+                new BlankImageFrame(this);
             }
         }
     }
