@@ -12,10 +12,10 @@ import java.net.URL;
 import java.net.URLEncoder;
 
 import javax.imageio.ImageIO;
-import javax.xml.bind.DatatypeConverter;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.sun.org.apache.xerces.internal.impl.dv.util.Base64;
 
 /**
  * Implementation to upload to Imgur
@@ -96,7 +96,7 @@ public class ImgurUploader implements IUploader {
             FileInputStream fs = new FileInputStream(file);
             fs.read(b);
             fs.close();
-            return URLEncoder.encode(DatatypeConverter.printBase64Binary(b), "UTF-8");
+            return URLEncoder.encode(Base64.encode(b), "UTF-8");
         } catch (Exception e) {
             e.printStackTrace();
             return null;
