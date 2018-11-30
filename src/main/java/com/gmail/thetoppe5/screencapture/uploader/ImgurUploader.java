@@ -13,9 +13,10 @@ import java.net.URLEncoder;
 
 import javax.imageio.ImageIO;
 
+import org.apache.xerces.impl.dv.util.Base64;
+
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.sun.org.apache.xerces.internal.impl.dv.util.Base64;
 
 /**
  * Implementation to upload to Imgur
@@ -81,8 +82,7 @@ public class ImgurUploader implements IUploader {
             // delete the file
             imageFile.delete();
 
-            // System.out.print("Uploading took " + (System.currentTimeMillis()-started) + "
-            // ms\n URL: " + url);
+            System.out.print("Uploading took " + (System.currentTimeMillis() - started) + " ms\n URL: " + url);
             return url;
         } catch (IOException e) {
             e.printStackTrace();
