@@ -8,6 +8,7 @@ import java.io.File;
 import java.io.IOException;
 
 import javax.imageio.ImageIO;
+import javax.swing.FocusManager;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 
@@ -36,8 +37,8 @@ public class HotKeyListener {
                 if (e.getID() != KeyEvent.KEY_PRESSED) {
                     return false;
                 }
-                // ignore if not main frame
-                if (e.getComponent() != screenCapture) {
+                //is the main frame
+                if(FocusManager.getCurrentManager().getActiveWindow() != screenCapture) {
                     return false;
                 }
                 int key = e.getKeyCode();
