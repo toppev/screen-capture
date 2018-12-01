@@ -15,22 +15,23 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 
 public class SoundPlayer {
 
-
     /**
      * Plays InputStream as sound
-     * @param input input stream to play
+     * 
+     * @param input
+     *            input stream to play
      * @return true if started playing successfully
      */
     public static boolean playSound(InputStream input) {
-        //make sure the input supports mark/reset
+        // make sure the input supports mark/reset
         InputStream bufferedIn = new BufferedInputStream(input);
-        
+
         AudioInputStream audioInputStream;
         try {
-            //read the audio
+            // read the audio
             audioInputStream = AudioSystem.getAudioInputStream(bufferedIn);
             Clip clip = AudioSystem.getClip();
-            //open and start playing
+            // open and start playing
             clip.open(audioInputStream);
             clip.start();
             return true;
@@ -39,10 +40,12 @@ public class SoundPlayer {
         }
         return false;
     }
-    
+
     /**
      * Plays File as sound. Supports .wav
-     * @param filo to play
+     * 
+     * @param filo
+     *            to play
      * @return true if started playing successfully
      */
     public static boolean playSound(File file) {

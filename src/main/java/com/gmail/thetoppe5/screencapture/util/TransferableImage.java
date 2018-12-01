@@ -6,10 +6,19 @@ import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 
+/**
+ * Transferable implementation to allow copying BufferedImage to clipboard
+ */
 public class TransferableImage implements Transferable {
 
-    final BufferedImage image;
+    private final BufferedImage image;
 
+    /**
+     * Create a new TransferableImage with the given BufferedImage
+     * 
+     * @param image
+     *            the image to make Transferable
+     */
     public TransferableImage(final BufferedImage image) {
         this.image = image;
     }

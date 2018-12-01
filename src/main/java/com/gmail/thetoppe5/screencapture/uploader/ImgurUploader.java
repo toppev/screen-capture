@@ -20,8 +20,6 @@ import com.google.gson.JsonParser;
 
 /**
  * Implementation to upload to Imgur
- * 
- * @author Topias
  *
  */
 public class ImgurUploader implements IUploader {

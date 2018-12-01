@@ -9,12 +9,16 @@ import javax.swing.JFrame;
 
 public class HelpButton extends JButton {
 
-    /**
-     * 
-     */
     private static final long serialVersionUID = 1L;
 
     // TODO add icon
+    /**
+     * Creates a new HelpButton
+     * 
+     * @param frame
+     *            the frame that should be the parent frame of the frame that opens
+     *            when clicking this button
+     */
     public HelpButton(JFrame frame) {
         setText("Help");
         addActionListener(new ActionListener() {

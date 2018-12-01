@@ -61,6 +61,7 @@ public class ScreenCapture extends JFrame implements ActionListener, WindowListe
 
             @Override
             public void run() {
+                System.out.println("Starting screen-capture...");
                 new ScreenCapture();
             }
         });
@@ -164,7 +165,7 @@ public class ScreenCapture extends JFrame implements ActionListener, WindowListe
                             }
                         });
                     } else {
-                        // "Failed to upload image. Try again.");
+                        System.out.println("Failed to upload image. Try again.");
                     }
                 }
             });
@@ -276,9 +277,11 @@ public class ScreenCapture extends JFrame implements ActionListener, WindowListe
      * @return
      */
     public BufferedImage getImage() {
+        // try to get the current image from image editor
         if (editor != null && editor.getImage() != null) {
             return editor.getImage();
         }
+        // get the clipboard image
         return getClipboardImage();
     }
 

@@ -8,7 +8,10 @@ import java.net.URISyntaxException;
 public class DesktopUtil {
 
     /**
-     * Opens the url in browser
+     * Opens the url with default browser
+     * 
+     * @param url
+     *            the url to open
      */
     public static void openInBrowser(String url) {
         Desktop desktop = Desktop.isDesktopSupported() ? Desktop.getDesktop() : null;

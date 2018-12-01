@@ -12,10 +12,19 @@ public class HelpFrame {
 
     private JFrame parent;
 
+    /**
+     * Create a new HelpFrame instance. Call create() to actually create the JFrame
+     * 
+     * @param parent
+     *            used for the help JDialog
+     */
     public HelpFrame(JFrame parent) {
         this.parent = parent;
     }
 
+    /**
+     * Create the frame
+     */
     public void create() {
         SwingUtilities.invokeLater(new Runnable() {
 
