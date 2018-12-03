@@ -27,9 +27,8 @@ import com.gmail.thetoppe5.screencapture.ScreenCapture;
 
 public class EditorPanel extends JPanel implements MouseListener, MouseMotionListener, MouseWheelListener {
 
-    /**
-     * 
-     */
+
+    
     private static final long serialVersionUID = 1L;
 
     private final ScreenCapture parent;
@@ -48,6 +47,11 @@ public class EditorPanel extends JPanel implements MouseListener, MouseMotionLis
     private JColorChooser colorChooser = new JColorChooser(color);
     private JFrame colorChooserFrame = new JFrame();
 
+    /**
+     * Create a new EditorPanel
+     * @param image the image to edit
+     * @param screenCapture instance of the ScreenCapture
+     */
     public EditorPanel(BufferedImage image, ScreenCapture screenCapture) {
         this.parent = screenCapture;
         this.setSize(image.getWidth(), image.getHeight());
@@ -62,6 +66,10 @@ public class EditorPanel extends JPanel implements MouseListener, MouseMotionLis
         updateImage(image);
     }
 
+    /**
+     * Update this EditorPanel's image that is being edited 
+     * @param newImage the new image
+     */
     public void updateImage(BufferedImage newImage) {
         // TODO something wrong somewhere
         if (newImage != null) {
@@ -72,6 +80,10 @@ public class EditorPanel extends JPanel implements MouseListener, MouseMotionLis
         updateTitle();
     }
 
+    /**
+     * Adds the JScrollPane as needed
+     * Makes it possible to edit higher resolution images without fullscreen
+     */
     private void addScrollPane() {
         SwingUtilities.invokeLater(new Runnable() {
 
@@ -96,42 +108,59 @@ public class EditorPanel extends JPanel implements MouseListener, MouseMotionLis
         }
     }
 
-    public void mouse(int x, int y) {
+    /**
+     * Handle mouse events
+     * @param x the x of the mouse event
+     * @param y the y of the mouse event
+     */
+    private void mouse(int x, int y) {
         Graphics2D g = image.createGraphics();
         g.setColor(color);
         g.setStroke(new BasicStroke(size, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
         g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
         if (editMode != null) {
             if (editMode == EditMode.FREE) {
+                //handle free drawing
                 Point p = new Point(x, y);
+                //draws line between because the event is not called enough often to just draw the current fixels
                 g.drawLine(clicked != null ? clicked.x : p.x, clicked != null ? clicked.y : p.y, x, y);
+                //store the last clicked Point
                 clicked = p;
             }
 
             else if (editMode == EditMode.ERASE) {
+                //handle erasing paintings
                 g.setPaintMode();
+                
                 x -= size / 2;
                 y -= size / 2;
                 int w = size;
                 int h = size;
                 if (x < 0) {
+                    //if x is negative expand the eraser in the other direction
                     w += x;
                     x = 0;
                 } else if (x + size > image.getWidth()) {
+                    //reduce the eraser size if it goes beyond the image
                     w = image.getWidth() - x;
                     x = image.getWidth() - w;
                 }
                 if (y < 0) {
+                    //if y is negative expand the eraser in the other direction
                     h += y;
                     y = 0;
                 } else if (y + size > image.getHeight()) {
+                    //reduce the eraser size if it goes beyond the image
                     h = image.getHeight() - y;
                     y = image.getHeight() - h;
                 }
+                //ignore invalid width and height parameters
                 if (w < 1 || w >= image.getWidth() || h < 1 || h >= image.getHeight()) {
                     return;
                 }
+                //select the area from the backupImage (the image without any paintings)
                 BufferedImage subImage = backupImage.getSubimage(x, y, w, h);
+                //and draw it in the current image
                 g.drawImage(subImage, x, y, w, h, this);
 
             }
@@ -139,6 +168,9 @@ public class EditorPanel extends JPanel implements MouseListener, MouseMotionLis
         }
     }
 
+    /**
+     * Updates the title of this frame
+     */
     private void updateTitle() {
         if (editMode == EditMode.FREE) {
             parent.setTitle("Free draw - Size: " + size + " - Color: ");
@@ -149,11 +181,21 @@ public class EditorPanel extends JPanel implements MouseListener, MouseMotionLis
         }
     }
 
+    /**
+     * Sets the size of the painting tool/eraser
+     * @param size
+     */
     private void setCurrentSize(int size) {
         this.size = size;
+        //update the title with the new size
         updateTitle();
     }
 
+    /**
+     * Copies the image
+     * @param bi BufferedImage to copy
+     * @return a new copy of the image
+     */
     private static BufferedImage deepCopy(BufferedImage bi) {
         ColorModel cm = bi.getColorModel();
         boolean isAlphaPremultiplied = cm.isAlphaPremultiplied();
@@ -212,6 +254,10 @@ public class EditorPanel extends JPanel implements MouseListener, MouseMotionLis
     public void mouseMoved(MouseEvent e) {
     }
 
+    /**
+     * Get the current image
+     * @return the current image
+     */
     public BufferedImage getImage() {
         return image;
     }
