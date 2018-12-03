@@ -28,11 +28,12 @@ public class HotKeyListener {
          * U - upload. CTRL + S - save to disk.
          */
 
-        // TODO open image from disk (?)
         KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher(new KeyEventDispatcher() {
 
             @Override
             public boolean dispatchKeyEvent(KeyEvent e) {
+                // TODO open image from disk (?)
+
                 // ignore release
                 if (e.getID() != KeyEvent.KEY_PRESSED) {
                     return false;
@@ -56,10 +57,7 @@ public class HotKeyListener {
                 }
                 // make the frame "fullscreen" and take a screenshot
                 if (ctrl && key == KeyEvent.VK_A) {
-                    Screenshot ss = screenCapture.getScreenshot();
-                    if (ss == null) {
-                        ss = screenCapture.newScreenshot();
-                    }
+                    Screenshot ss = screenCapture.newScreenshot();
                     ss.setVisible(true);
                     ss.setExtendedState(JFrame.MAXIMIZED_BOTH);
                     ss.takeScreenshot();
@@ -77,7 +75,7 @@ public class HotKeyListener {
                         JFileChooser saver = new JFileChooser();
                         if (saver.showSaveDialog(screenCapture) == JFileChooser.APPROVE_OPTION) {
                             File file = saver.getSelectedFile();
-                            // default format
+                            // default format to use
                             String format = "png";
 
                             String[] s = file.getName().split("\\.");
