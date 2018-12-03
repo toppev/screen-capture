@@ -315,10 +315,6 @@ public class ScreenCapture extends JFrame implements ActionListener, WindowListe
     public void windowOpened(WindowEvent arg0) {
     }
 
-    public Screenshot getScreenshot() {
-        return screenshot;
-    }
-
     public EditorPanel getEditor() {
         return editor;
     }
