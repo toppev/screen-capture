@@ -1,12 +1,12 @@
 # screen-capture
-This is a simple screen-capture program written in Java.
+A simple screen-capture program written in Java.
 
 
 You can take new screenshots and draw on them with any size and color with left click and erase with right click. Middle click to select different color.
 
-You can also draw on blank background or create a new background with custom width, height and color.
+You can also draw on a blank background or create a new background with selected width, height and color.
 
-Press the upload button to upload the image to Imgur via their API.
+Press the upload button to upload the image to Imgur.
 
 
 Key binds:
