@@ -11,8 +11,10 @@ import javax.imageio.ImageIO;
 import javax.swing.FocusManager;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
+import javax.swing.filechooser.FileNameExtensionFilter;
 
 import com.gmail.thetoppe5.screencapture.screenshot.Screenshot;
+import com.gmail.thetoppe5.screencapture.util.TransferableImage;
 
 public class HotKeyListener {
 
@@ -32,8 +34,6 @@ public class HotKeyListener {
 
             @Override
             public boolean dispatchKeyEvent(KeyEvent e) {
-                // TODO open image from disk (?)
-
                 // ignore release
                 if (e.getID() != KeyEvent.KEY_PRESSED) {
                     return false;
@@ -44,6 +44,22 @@ public class HotKeyListener {
                 }
                 int key = e.getKeyCode();
                 boolean ctrl = e.isControlDown();
+
+                // TODO open image from disk (?)
+                if(ctrl && key == KeyEvent.VK_I) {
+                    JFileChooser importer = new JFileChooser();
+                    importer.setFileFilter(new FileNameExtensionFilter("Files supported by ImageIO", ImageIO.getReaderFileSuffixes()));
+                    if(importer.showOpenDialog(screenCapture) == JFileChooser.APPROVE_OPTION) {
+                        File file = importer.getSelectedFile();
+                        try {
+                            ScreenCapture.CLIPBOARD.setContents(new TransferableImage(ImageIO.read(file)), null);
+                            screenCapture.updateEditor();
+                        } catch (IOException e1) {
+                            System.out.println("Couldn't load give image: " + file.getPath());
+                            e1.printStackTrace();
+                        }
+                    }
+                }
                 // quit
                 if (key == KeyEvent.VK_ESCAPE) {
                     screenCapture.dispose();
