@@ -2,7 +2,9 @@ package com.gmail.thetoppe5.screencapture.editor;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
@@ -33,7 +35,7 @@ public class EditorPanel extends JPanel implements MouseListener, MouseMotionLis
 
     // image stuff
     private BufferedImage image;
-    private BufferedImage backupImage;
+    BufferedImage backupImage;
 
     // stuff concerning painting (modes, size, last clicked point)
     private EditMode editMode = EditMode.FREE;
@@ -44,6 +46,7 @@ public class EditorPanel extends JPanel implements MouseListener, MouseMotionLis
     private Color color = Color.RED;
     private JColorChooser colorChooser = new JColorChooser(color);
     private JFrame colorChooserFrame = new JFrame();
+    private long lastClickedTime;
 
     /**
      * Create a new EditorPanel
@@ -79,6 +82,12 @@ public class EditorPanel extends JPanel implements MouseListener, MouseMotionLis
             this.image = newImage;
             this.backupImage = deepCopy(image);
         }
+        //TODO concurrentmodificaotioanexceptionadnwa
+        for(Component c : this.getComponents()) {
+            if(c instanceof EditorTextField) {
+                this.remove(c);
+            }
+        }
         parent.repaint();
         updateTitle();
     }
@@ -111,15 +120,7 @@ public class EditorPanel extends JPanel implements MouseListener, MouseMotionLis
         }
     }
 
-    /**
-     * Handle mouse events
-     * 
-     * @param x
-     *            the x of the mouse event
-     * @param y
-     *            the y of the mouse event
-     */
-    private void mouse(int x, int y) {
+    Graphics2D createGraphics() {
         Graphics2D g = image.createGraphics();
         g.setColor(color);
         g.setStroke(new BasicStroke(size, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
@@ -130,7 +131,19 @@ public class EditorPanel extends JPanel implements MouseListener, MouseMotionLis
         g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
         g.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
         g.setRenderingHint(RenderingHints.KEY_STROKE_CONTROL, RenderingHints.VALUE_STROKE_PURE);
+        return g;
+    }
 
+    /**
+     * Handle mouse events
+     * 
+     * @param x
+     *            the x of the mouse event
+     * @param y
+     *            the y of the mouse event
+     */
+    private void mouse(int x, int y) {
+        Graphics2D g = createGraphics();
         if (editMode != null) {
             if (editMode == EditMode.FREE) {
                 // handle free drawing
@@ -222,12 +235,30 @@ public class EditorPanel extends JPanel implements MouseListener, MouseMotionLis
 
     @Override
     public void mousePressed(MouseEvent e) {
+        // double click to type text
+        if (lastClickedTime + 300 > System.currentTimeMillis()) {
+            // avoid bugs if clicked 3 times in row
+            lastClickedTime = 0;
+            editMode = EditMode.TEXT;
+            clicked = e.getPoint();
+            EditorTextField textField = new EditorTextField(this);
+            textField.setFont(new Font("Verdana", Font.BOLD, size*2));
+            textField.setForeground(color);
+            textField.setLocation(clicked);
+            this.add(textField);
+            textField.requestFocusInWindow();
+            return;
+        } else {
+            this.requestFocusInWindow();
+            lastClickedTime = System.currentTimeMillis();
+            if (editMode == EditMode.TEXT) {
+                editMode = EditMode.FREE;
+            }
+        }
         editMode = e.getButton() == 3 ? EditMode.ERASE : EditMode.FREE;
         color = colorChooser.getColor();
         updateTitle();
-        if (e.getButton() != 2) {
-            mouse(e.getX(), e.getY());
-        } else {
+        if (e.getButton() == 2) {
             colorChooserFrame.setLocation(this.getLocation());
             colorChooserFrame.setVisible(true);
         }
