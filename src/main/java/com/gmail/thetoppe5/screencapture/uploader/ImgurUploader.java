@@ -63,17 +63,9 @@ public class ImgurUploader implements IUploader {
 
         // get response
         try {
-            StringBuilder builder = new StringBuilder();
             BufferedReader reader = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-            String line;
-            while ((line = reader.readLine()) != null) {
-                builder.append(line).append(System.lineSeparator());
-            }
-            reader.close();
-            String result = builder.toString();
-
             JsonParser parser = new JsonParser();
-            JsonObject json = (JsonObject) parser.parse(result);
+            JsonObject json = (JsonObject) parser.parse(reader);
             JsonObject data = json.get("data").getAsJsonObject();
             String url = "http://i.imgur.com/" + data.get("id").getAsString() + ".png";
 
