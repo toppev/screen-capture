@@ -55,15 +55,13 @@ public class EditorTextField extends JTextField
         
         Graphics2D g = editor.createGraphics();
         
-        //TODO the x y etc are not correct idkdajdhwag
+        //TODO the x y etc are not correct
         int x = getX();
         int y = getY();
         
-        //remove old text
         BufferedImage subImage = editor.backupImage.getSubimage(x, y, getWidth(), getHeight());
         g.drawImage(subImage, x, y, getWidth(), getHeight(), editor);
 
-        //add new
         g.setFont(getFont());
         g.drawString(getText(), x, y);
     }
