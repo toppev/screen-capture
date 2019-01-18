@@ -45,11 +45,12 @@ public class HotKeyListener {
                 int key = e.getKeyCode();
                 boolean ctrl = e.isControlDown();
 
-                // TODO open image from disk (?)
-                if(ctrl && key == KeyEvent.VK_I) {
+                // import from disk
+                if (ctrl && key == KeyEvent.VK_I) {
                     JFileChooser importer = new JFileChooser();
-                    importer.setFileFilter(new FileNameExtensionFilter("Files supported by ImageIO", ImageIO.getReaderFileSuffixes()));
-                    if(importer.showOpenDialog(screenCapture) == JFileChooser.APPROVE_OPTION) {
+                    importer.setFileFilter(
+                            new FileNameExtensionFilter("Files supported by ImageIO", ImageIO.getReaderFileSuffixes()));
+                    if (importer.showOpenDialog(screenCapture) == JFileChooser.APPROVE_OPTION) {
                         File file = importer.getSelectedFile();
                         try {
                             ScreenCapture.CLIPBOARD.setContents(new TransferableImage(ImageIO.read(file)), null);
