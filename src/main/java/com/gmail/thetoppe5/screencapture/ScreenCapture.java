@@ -17,6 +17,8 @@ import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -27,7 +29,7 @@ import javax.swing.SwingUtilities;
 import com.gmail.thetoppe5.screencapture.editor.EditorPanel;
 import com.gmail.thetoppe5.screencapture.screenshot.Screenshot;
 import com.gmail.thetoppe5.screencapture.screenshot.ScreenshotCallback;
-import com.gmail.thetoppe5.screencapture.uploader.IUploader;
+import com.gmail.thetoppe5.screencapture.uploader.AbstractUploader;
 import com.gmail.thetoppe5.screencapture.uploader.UploadProvider;
 import com.gmail.thetoppe5.screencapture.userhelp.HelpButton;
 import com.gmail.thetoppe5.screencapture.util.DesktopUtil;
@@ -36,15 +38,15 @@ import com.gmail.thetoppe5.screencapture.util.TransferableImage;
 
 public class ScreenCapture extends JFrame implements ActionListener, WindowListener {
 
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 8905339237280128760L;
+
+    private static final Logger logger = Logger.getLogger(ScreenCapture.class.getSimpleName());
 
     public static final Toolkit toolkit = Toolkit.getDefaultToolkit();
 
     public static final Clipboard CLIPBOARD = toolkit.getSystemClipboard();
 
     private final Dimension dimension = new Dimension(700, 500);
-
-    private JPanel panel;
 
     private Screenshot screenshot;
     private EditorPanel editor;
@@ -57,13 +59,9 @@ public class ScreenCapture extends JFrame implements ActionListener, WindowListe
     private boolean uploading;
 
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(new Runnable() {
-
-            @Override
-            public void run() {
-                System.out.println("Starting screen-capture...");
-                new ScreenCapture();
-            }
+        SwingUtilities.invokeLater(() -> {
+            logger.info("Starting screen-capture...");
+            new ScreenCapture();
         });
     }
 
@@ -90,7 +88,7 @@ public class ScreenCapture extends JFrame implements ActionListener, WindowListe
      * Creates and adds screenshot and upload buttons
      */
     private void createButtons() {
-        panel = new JPanel(new GridBagLayout());
+        JPanel panel = new JPanel(new GridBagLayout());
         GridBagConstraints c = new GridBagConstraints();
         panel.setPreferredSize(new Dimension(150, 500));
 
@@ -141,35 +139,26 @@ public class ScreenCapture extends JFrame implements ActionListener, WindowListe
     public void upload() {
         if (editor != null) {
             this.remove(editor);
-        }
-        if (editor.getImage() != null) {
-            uploading = true;
-            updateButtons();
-            Thread thread = new Thread(new Runnable() {
-
-                @Override
-                public void run() {
-                    IUploader uploader = UploadProvider.getProvider();
+            if (editor.getImage() != null) {
+                uploading = true;
+                updateButtons();
+                new Thread(() -> {
+                    AbstractUploader uploader = UploadProvider.getProvider();
                     String url = uploader.upload(editor.getImage());
-                    if (url != null) {
-                        SwingUtilities.invokeLater(new Runnable() {
-
-                            @Override
-                            public void run() {
-                                ScreenCapture.this.url = url;
-                                uploading = false;
-                                StringSelection selection = new StringSelection(url);
-                                CLIPBOARD.setContents(selection, null);
-                                updateButtons();
-                                uploadDoneDialog();
-                            }
-                        });
-                    } else {
-                        System.out.println("Failed to upload image. Try again.");
+                    if (url == null) {
+                        logger.log(Level.SEVERE, "Failed to upload image.");
+                        return;
                     }
-                }
-            });
-            thread.start();
+                    SwingUtilities.invokeLater(() -> {
+                        ScreenCapture.this.url = url;
+                        uploading = false;
+                        StringSelection selection = new StringSelection(url);
+                        CLIPBOARD.setContents(selection, null);
+                        updateButtons();
+                        uploadDoneDialog();
+                    });
+                }).start();
+            }
         }
     }
 
@@ -188,7 +177,6 @@ public class ScreenCapture extends JFrame implements ActionListener, WindowListe
      * Updates the main window buttons
      */
     private void updateButtons() {
-        // currently only thissss
         uploadButton.setEnabled(!uploading);
     }
 
@@ -204,7 +192,7 @@ public class ScreenCapture extends JFrame implements ActionListener, WindowListe
             try {
                 image = (BufferedImage) CLIPBOARD.getData(flavor);
             } catch (UnsupportedFlavorException | IOException e1) {
-                e1.printStackTrace();
+                logger.log(Level.SEVERE, "Failed to get from clipboard", e1);
             }
         }
         return image;
@@ -243,7 +231,7 @@ public class ScreenCapture extends JFrame implements ActionListener, WindowListe
             @Override
             public void onFailure(Exception e) {
                 ScreenCapture.this.setVisible(true);
-                e.printStackTrace();
+                logger.log(Level.SEVERE, "Failed to take a new screenshot", e);
             }
         });
         return screenshot;
@@ -297,26 +285,35 @@ public class ScreenCapture extends JFrame implements ActionListener, WindowListe
 
     @Override
     public void windowClosed(WindowEvent arg0) {
+        // No need to do anything
     }
 
     @Override
     public void windowClosing(WindowEvent arg0) {
+        // No need to do anything
     }
 
     @Override
     public void windowDeactivated(WindowEvent arg0) {
+        // No need to do anything
     }
 
     @Override
     public void windowIconified(WindowEvent arg0) {
+        // No need to do anything
     }
 
     @Override
     public void windowOpened(WindowEvent arg0) {
+        // No need to do anything
     }
 
     public EditorPanel getEditor() {
         return editor;
+    }
+
+    public static Logger getLogger() {
+        return logger;
     }
 
 }

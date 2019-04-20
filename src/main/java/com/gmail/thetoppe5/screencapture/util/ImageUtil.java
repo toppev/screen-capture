@@ -6,6 +6,9 @@ import java.awt.image.BufferedImage;
 
 public class ImageUtil {
 
+    private ImageUtil() {
+    }
+
     /**
      * Create a new one color image
      * 

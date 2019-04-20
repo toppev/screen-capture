@@ -26,30 +26,24 @@ public class HelpFrame {
      * Create the frame
      */
     public void create() {
-        SwingUtilities.invokeLater(new Runnable() {
+        SwingUtilities.invokeLater(() -> {
+            long keepOpen = 1000 * 20;
 
-            @Override
-            public void run() {
+            JOptionPane help = new JOptionPane(
+                    "Use mouse 1 to draw, mouse 2 to change color,"
+                            + "mouse 3 to erase, scroll to change font size and double click to add text",
+                    JOptionPane.INFORMATION_MESSAGE);
+            JDialog msg = help.createDialog(parent, "How To Edit");
+            msg.setModal(false);
+            msg.setVisible(true);
 
-                long keepOpen = 1000 * 20;
+            new Timer().schedule(new TimerTask() {
 
-                JOptionPane help = new JOptionPane(
-                        "Use mouse 1 to draw, mouse 2 to change color,"
-                                + "mouse 3 to erase, scroll to change font size and double click to add text",
-                        JOptionPane.INFORMATION_MESSAGE);
-                JDialog msg = help.createDialog(parent, "How To Edit");
-                msg.setModal(false);
-                msg.setVisible(true);
-
-                new Timer().schedule(new TimerTask() {
-
-                    @Override
-                    public void run() {
-                        msg.dispose();
-                    }
-                }, keepOpen);
-
-            }
+                @Override
+                public void run() {
+                    msg.dispose();
+                }
+            }, keepOpen);
         });
     }
 }

@@ -20,7 +20,7 @@ import com.gmail.thetoppe5.screencapture.util.ImageUtil;
 
 public class BlankImageFrame extends JDialog {
 
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = -9162557082202993821L;
 
     // "Width:" and "Height:" labels
     private JLabel widthLabel;
@@ -82,7 +82,6 @@ public class BlankImageFrame extends JDialog {
         colorButton.setBackground(colorChooser.getColor());
         colorButton.setBorder(BorderFactory.createLineBorder(Color.DARK_GRAY));
 
-        // TODO make good size
         c.gridy = 2;
         c.gridx = 4;
         colorButton.addActionListener(new ActionListener() {

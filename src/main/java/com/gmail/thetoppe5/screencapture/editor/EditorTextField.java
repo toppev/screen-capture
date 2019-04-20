@@ -16,8 +16,8 @@ import javax.swing.event.DocumentListener;
 public class EditorTextField extends JTextField
         implements ActionListener, FocusListener, MouseListener, DocumentListener {
 
-    private static final long serialVersionUID = 1L;
-
+    private static final long serialVersionUID = 5095413642132516215L;
+    
     private EditorPanel editor;
 
     public EditorTextField(EditorPanel editorPanel) {
@@ -52,16 +52,18 @@ public class EditorTextField extends JTextField
     @Override
     public void focusLost(FocusEvent e) {
         setEditable(false);
-        
+
         Graphics2D g = editor.createGraphics();
-        
-        //TODO the x y etc are not correct
+
+        // TODO the x y etc are not correct, might fix at some point
         int x = getX();
         int y = getY();
-        
+
+        // remove old text
         BufferedImage subImage = editor.backupImage.getSubimage(x, y, getWidth(), getHeight());
         g.drawImage(subImage, x, y, getWidth(), getHeight(), editor);
 
+        // add new
         g.setFont(getFont());
         g.drawString(getText(), x, y);
     }
@@ -73,26 +75,32 @@ public class EditorTextField extends JTextField
 
     @Override
     public void changedUpdate(DocumentEvent e) {
+        // No need to do anything
     }
 
     @Override
     public void mouseEntered(MouseEvent e) {
+        // No need to do anything
     }
 
     @Override
     public void mouseExited(MouseEvent e) {
+        // No need to do anything
     }
 
     @Override
     public void mousePressed(MouseEvent e) {
+        // No need to do anything
     }
 
     @Override
     public void mouseReleased(MouseEvent e) {
+        // No need to do anything
     }
 
     @Override
     public void focusGained(FocusEvent e) {
+        // No need to do anything
     }
 
 }

@@ -6,6 +6,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.logging.Level;
 
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
@@ -13,7 +14,12 @@ import javax.sound.sampled.Clip;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
+import com.gmail.thetoppe5.screencapture.ScreenCapture;
+
 public class SoundPlayer {
+
+    private SoundPlayer() {
+    }
 
     /**
      * Plays InputStream as sound
@@ -36,7 +42,7 @@ public class SoundPlayer {
             clip.start();
             return true;
         } catch (UnsupportedAudioFileException | IOException | LineUnavailableException e) {
-            e.printStackTrace();
+            ScreenCapture.getLogger().log(Level.SEVERE, "Failed to play audio", e);
         }
         return false;
     }
@@ -50,18 +56,18 @@ public class SoundPlayer {
      */
     public static boolean playSound(File file) {
         if (file == null) {
-            System.out.println("Couldn't play sound. File is null");
+            ScreenCapture.getLogger().log(Level.WARNING, "Failed to play audio: file is null");
             return false;
         }
         if (!file.exists()) {
-            System.out.println("Couldn't play sound. File not found: " + file.getAbsolutePath());
+            ScreenCapture.getLogger().log(Level.WARNING, "Failed to play audio: file not found {0}", file.getPath());
             return false;
         }
         InputStream input = null;
         try {
             input = new FileInputStream(file);
         } catch (FileNotFoundException e) {
-            e.printStackTrace();
+            ScreenCapture.getLogger().log(Level.SEVERE, "File not found", e);
         }
         return playSound(input);
     }

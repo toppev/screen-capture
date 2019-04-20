@@ -4,9 +4,12 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.Robot;
 import java.awt.image.BufferedImage;
+import java.util.logging.Level;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+
+import com.gmail.thetoppe5.screencapture.ScreenCapture;
 
 public class ScreenshotThread extends Thread {
 
@@ -20,7 +23,6 @@ public class ScreenshotThread extends Thread {
         this.panel = panel;
         this.wait = wait;
         this.callback = callback;
-        ;
     }
 
     /**
@@ -37,7 +39,8 @@ public class ScreenshotThread extends Thread {
             // wait so the frame will be completely invisible and not included in the image
             Thread.sleep(wait);
         } catch (InterruptedException e1) {
-            e1.printStackTrace();
+            ScreenCapture.getLogger().log(Level.SEVERE, "ScreenshotThread was interrupted", e1);
+            Thread.currentThread().interrupt();
         }
         try {
             // take the screenshot

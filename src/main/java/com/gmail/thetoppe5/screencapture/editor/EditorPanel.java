@@ -29,9 +29,9 @@ import com.gmail.thetoppe5.screencapture.ScreenCapture;
 
 public class EditorPanel extends JPanel implements MouseListener, MouseMotionListener, MouseWheelListener {
 
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = -4754990559531832558L;
 
-    private final ScreenCapture parent;
+    private final ScreenCapture screenCapture;
 
     // image stuff
     private BufferedImage image;
@@ -57,7 +57,7 @@ public class EditorPanel extends JPanel implements MouseListener, MouseMotionLis
      *            instance of the ScreenCapture
      */
     public EditorPanel(BufferedImage image, ScreenCapture screenCapture) {
-        this.parent = screenCapture;
+        this.screenCapture = screenCapture;
         this.setSize(image.getWidth(), image.getHeight());
         this.setBorder(BorderFactory.createLineBorder(Color.DARK_GRAY));
         this.addMouseListener(this);
@@ -77,38 +77,31 @@ public class EditorPanel extends JPanel implements MouseListener, MouseMotionLis
      *            the new image
      */
     public void updateImage(BufferedImage newImage) {
-        // TODO something wrong somewhere
         if (newImage != null) {
             this.image = newImage;
             this.backupImage = deepCopy(image);
         }
-        //TODO concurrentmodificaotioanexceptionadnwa
-        for(Component c : this.getComponents()) {
-            if(c instanceof EditorTextField) {
+        for (Component c : this.getComponents()) {
+            if (c instanceof EditorTextField) {
                 this.remove(c);
             }
         }
-        parent.repaint();
+        screenCapture.repaint();
         updateTitle();
     }
 
     /**
      * Adds the JScrollPane as needed Makes it possible to edit higher resolution
-     * images without fullscreen
+     * images without full screen
      */
     private void addScrollPane() {
-        SwingUtilities.invokeLater(new Runnable() {
-
-            @Override
-            public void run() {
-                JScrollPane scroll = new JScrollPane(EditorPanel.this);
-                scroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-                scroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
-                scroll.setVisible(true);
-                parent.add(scroll);
-            }
+        SwingUtilities.invokeLater(() -> {
+            JScrollPane scroll = new JScrollPane(EditorPanel.this);
+            scroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+            scroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+            scroll.setVisible(true);
+            screenCapture.add(scroll);
         });
-
     }
 
     @Override
@@ -124,7 +117,6 @@ public class EditorPanel extends JPanel implements MouseListener, MouseMotionLis
         Graphics2D g = image.createGraphics();
         g.setColor(color);
         g.setStroke(new BasicStroke(size, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
-
         g.setRenderingHint(RenderingHints.KEY_ALPHA_INTERPOLATION, RenderingHints.VALUE_ALPHA_INTERPOLATION_QUALITY);
         g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         g.setRenderingHint(RenderingHints.KEY_COLOR_RENDERING, RenderingHints.VALUE_COLOR_RENDER_QUALITY);
@@ -191,7 +183,7 @@ public class EditorPanel extends JPanel implements MouseListener, MouseMotionLis
                 g.drawImage(subImage, x, y, w, h, this);
 
             }
-            parent.repaint();
+            screenCapture.repaint();
         }
     }
 
@@ -200,11 +192,11 @@ public class EditorPanel extends JPanel implements MouseListener, MouseMotionLis
      */
     private void updateTitle() {
         if (editMode == EditMode.FREE) {
-            parent.setTitle("Free draw - Size: " + size + " - Color: ");
-            parent.setBackground(color);
+            screenCapture.setTitle("Free draw - Size: " + size + " - Color: ");
+            screenCapture.setBackground(color);
         } else if (editMode == EditMode.ERASE) {
-            parent.setTitle("Eraser - Size: " + size + " - Color: ");
-            parent.setBackground(color);
+            screenCapture.setTitle("Eraser - Size: " + size + " - Color: ");
+            screenCapture.setBackground(color);
         }
     }
 
@@ -242,7 +234,7 @@ public class EditorPanel extends JPanel implements MouseListener, MouseMotionLis
             editMode = EditMode.TEXT;
             clicked = e.getPoint();
             EditorTextField textField = new EditorTextField(this);
-            textField.setFont(new Font("Verdana", Font.BOLD, size*2));
+            textField.setFont(new Font("Verdana", Font.BOLD, size * 2));
             textField.setForeground(color);
             textField.setLocation(clicked);
             this.add(textField);
@@ -288,18 +280,22 @@ public class EditorPanel extends JPanel implements MouseListener, MouseMotionLis
 
     @Override
     public void mouseClicked(MouseEvent e) {
+        // No need to do anything
     }
 
     @Override
     public void mouseEntered(MouseEvent e) {
+        // No need to do anything
     }
 
     @Override
     public void mouseExited(MouseEvent e) {
+        // No need to do anything
     }
 
     @Override
     public void mouseMoved(MouseEvent e) {
+        // No need to do anything
     }
 
     /**

@@ -4,8 +4,14 @@ import java.awt.Desktop;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.logging.Level;
+
+import com.gmail.thetoppe5.screencapture.ScreenCapture;
 
 public class DesktopUtil {
+
+    private DesktopUtil() {
+    }
 
     /**
      * Opens the url with default browser
@@ -19,7 +25,7 @@ public class DesktopUtil {
             try {
                 desktop.browse(new URI(url));
             } catch (IOException | URISyntaxException e1) {
-                e1.printStackTrace();
+                ScreenCapture.getLogger().log(Level.WARNING, "Failed to open browser", e1);
             }
         }
     }

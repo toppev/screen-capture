@@ -10,11 +10,14 @@ import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.nio.file.Files;
+import java.util.logging.Level;
 
 import javax.imageio.ImageIO;
 
 import org.apache.xerces.impl.dv.util.Base64;
 
+import com.gmail.thetoppe5.screencapture.ScreenCapture;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
@@ -22,7 +25,7 @@ import com.google.gson.JsonParser;
  * Implementation to upload to Imgur
  *
  */
-public class ImgurUploader implements IUploader {
+public class ImgurUploader implements AbstractUploader {
 
     private static final String WEBSITE_URL = "https://api.imgur.com/3/upload";
     private static final String CLIENT_ID = "c614c9715157d42";
@@ -35,7 +38,7 @@ public class ImgurUploader implements IUploader {
         try {
             ImageIO.write(image, "png", imageFile);
         } catch (IOException e) {
-            e.printStackTrace();
+            ScreenCapture.getLogger().log(Level.SEVERE, "Failed to write image file", e);
         }
 
         // connect
@@ -49,16 +52,15 @@ public class ImgurUploader implements IUploader {
             conn.setReadTimeout(1000 * 20);
             conn.connect();
         } catch (IOException e) {
-            e.printStackTrace();
+            ScreenCapture.getLogger().log(Level.SEVERE, "Failed to upload image", e);
         }
 
         // write
         try (OutputStreamWriter writer = new OutputStreamWriter(conn.getOutputStream())) {
             writer.write("image=" + toBase64(imageFile));
             writer.flush();
-            writer.close();
         } catch (IOException e) {
-            e.printStackTrace();
+            ScreenCapture.getLogger().log(Level.SEVERE, "Failed to write image OutputStream", e);
         }
 
         // get response
@@ -70,25 +72,23 @@ public class ImgurUploader implements IUploader {
             String url = "http://i.imgur.com/" + data.get("id").getAsString() + ".png";
 
             // delete the file
-            imageFile.delete();
-
-            System.out.print("Uploading took " + (System.currentTimeMillis() - started) + " ms\n URL: " + url);
+            Files.delete(imageFile.toPath());
+            ScreenCapture.getLogger().log(Level.INFO, "Uploading took {0} ms\n. URL: {1}",
+                    new Object[] { System.currentTimeMillis() - started, url });
             return url;
         } catch (IOException e) {
-            e.printStackTrace();
+            ScreenCapture.getLogger().log(Level.SEVERE, "Failed to get response from uploaded image", e);
         }
         return null;
     }
 
     private static String toBase64(File file) {
-        try {
+        try (FileInputStream fs = new FileInputStream(file)) {
             byte[] b = new byte[(int) file.length()];
-            FileInputStream fs = new FileInputStream(file);
             fs.read(b);
-            fs.close();
             return URLEncoder.encode(Base64.encode(b), "UTF-8");
         } catch (Exception e) {
-            e.printStackTrace();
+            ScreenCapture.getLogger().log(Level.SEVERE, "Failed to convert to base64", e);
             return null;
         }
     }

@@ -2,8 +2,6 @@ package com.gmail.thetoppe5.screencapture.screenshot;
 
 import java.awt.Color;
 import java.awt.Point;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -14,10 +12,7 @@ import com.gmail.thetoppe5.screencapture.util.SoundPlayer;
 
 public class Screenshot extends JFrame {
 
-    /**
-     * 
-     */
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = -5668713612275680775L;
 
     private static Point lastLocation;
 
@@ -41,12 +36,8 @@ public class Screenshot extends JFrame {
 
         button = new JButton("Screenshot");
         button.setSize(20, 10);
-        button.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                takeScreenshot();
-            }
+        button.addActionListener(l -> {
+            takeScreenshot();
         });
         panel.add(button);
         this.add(panel);
@@ -58,20 +49,18 @@ public class Screenshot extends JFrame {
         // play the sound async
         playSoundEffectAsync();
         new ScreenshotThread(Screenshot.this, panel, wait, callback).start();
-        lastLocation = Screenshot.this.getLocation();
+        setLastLocation(getLocation());
+    }
+
+    private static void setLastLocation(Point location) {
+        lastLocation = location;
     }
 
     /**
      * Plays the sound effect asynchronously
      */
     private void playSoundEffectAsync() {
-        new Thread(new Runnable() {
-
-            @Override
-            public void run() {
-                SoundPlayer.playScreenshotSound();
-            }
-        }).start();
+        new Thread(SoundPlayer::playScreenshotSound).start();
     }
 
     public static Point getLastLocation() {

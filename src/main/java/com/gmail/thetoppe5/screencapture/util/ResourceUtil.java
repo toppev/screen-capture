@@ -1,8 +1,14 @@
 package com.gmail.thetoppe5.screencapture.util;
 
 import java.io.InputStream;
+import java.util.logging.Level;
+
+import com.gmail.thetoppe5.screencapture.ScreenCapture;
 
 public class ResourceUtil {
+
+    private ResourceUtil() {
+    }
 
     /**
      * Get a resource as stream
@@ -16,7 +22,7 @@ public class ResourceUtil {
         if (resource != null) {
             return resource;
         }
-        System.out.println("Resource not found: " + path);
+        ScreenCapture.getLogger().log(Level.SEVERE, "Resource not found: {0}", path);
         return null;
     }
 
