@@ -25,13 +25,13 @@ public class HotKeyListener {
     }
 
     public void register() {
-        /**
-         * ESCAPE - quit. CTRL + N - new screenshot CTRL + A - select full screen CTRL +
-         * U - upload. CTRL + S - save to disk.
-         */
-
+        // ESCAPE - quit
+        // CTRL + N - new screenshot
+        // CTRL + A - select full screen
+        // CTRL + U - upload
+        // CTRL + S - save to disk
         KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher(e -> {
-            // ignore release
+            // ignore key release
             if (e.getID() != KeyEvent.KEY_PRESSED) {
                 return false;
             }
@@ -41,7 +41,6 @@ public class HotKeyListener {
             }
             int key = e.getKeyCode();
             boolean ctrl = e.isControlDown();
-
             // import from disk
             if (ctrl && key == KeyEvent.VK_I) {
                 JFileChooser importer = new JFileChooser();

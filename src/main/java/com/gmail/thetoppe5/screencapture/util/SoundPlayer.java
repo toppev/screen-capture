@@ -16,7 +16,7 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 
 import com.gmail.thetoppe5.screencapture.ScreenCapture;
 
-public class SoundPlayer {
+public final class SoundPlayer {
 
     private SoundPlayer() {
     }

@@ -8,7 +8,7 @@ import java.util.logging.Level;
 
 import com.gmail.thetoppe5.screencapture.ScreenCapture;
 
-public class DesktopUtil {
+public final class DesktopUtil {
 
     private DesktopUtil() {
     }

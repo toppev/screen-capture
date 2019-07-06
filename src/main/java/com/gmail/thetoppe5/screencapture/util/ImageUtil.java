@@ -4,7 +4,7 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 
-public class ImageUtil {
+public final class ImageUtil {
 
     private ImageUtil() {
     }

@@ -19,9 +19,7 @@ public class HelpButton extends JButton {
      */
     public HelpButton(JFrame frame) {
         setText("Help");
-        addActionListener(e -> {
-            new HelpFrame(frame).create();
-        });
+        addActionListener(e -> new HelpFrame(frame).create());
         setCursor(new Cursor(Cursor.HAND_CURSOR));
     }
 

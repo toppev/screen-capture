@@ -28,9 +28,8 @@ import javax.swing.SwingUtilities;
 
 import com.gmail.thetoppe5.screencapture.editor.EditorPanel;
 import com.gmail.thetoppe5.screencapture.screenshot.Screenshot;
-import com.gmail.thetoppe5.screencapture.screenshot.ScreenshotCallback;
-import com.gmail.thetoppe5.screencapture.uploader.AbstractUploader;
-import com.gmail.thetoppe5.screencapture.uploader.UploadProvider;
+import com.gmail.thetoppe5.screencapture.uploader.Uploader;
+import com.gmail.thetoppe5.screencapture.uploader.UploaderProvider;
 import com.gmail.thetoppe5.screencapture.userhelp.HelpButton;
 import com.gmail.thetoppe5.screencapture.util.DesktopUtil;
 import com.gmail.thetoppe5.screencapture.util.ImageUtil;
@@ -39,14 +38,10 @@ import com.gmail.thetoppe5.screencapture.util.TransferableImage;
 public class ScreenCapture extends JFrame implements ActionListener, WindowListener {
 
     private static final long serialVersionUID = 8905339237280128760L;
-
     private static final Logger logger = Logger.getLogger(ScreenCapture.class.getSimpleName());
-
-    public static final Toolkit toolkit = Toolkit.getDefaultToolkit();
-
-    public static final Clipboard CLIPBOARD = toolkit.getSystemClipboard();
-
-    private final Dimension dimension = new Dimension(700, 500);
+    private static final Toolkit toolkit = Toolkit.getDefaultToolkit();
+    static final Clipboard CLIPBOARD = toolkit.getSystemClipboard();
+    private static final Dimension dimension = new Dimension(700, 500);
 
     private Screenshot screenshot;
     private EditorPanel editor;
@@ -59,10 +54,8 @@ public class ScreenCapture extends JFrame implements ActionListener, WindowListe
     private boolean uploading;
 
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> {
-            logger.info("Starting screen-capture...");
-            new ScreenCapture();
-        });
+        logger.info("Starting screen-capture...");
+        SwingUtilities.invokeLater(ScreenCapture::new);
     }
 
     /**
@@ -98,7 +91,6 @@ public class ScreenCapture extends JFrame implements ActionListener, WindowListe
         captureButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
         c.insets = new Insets(25, 10, 25, 10);
         c.fill = GridBagConstraints.HORIZONTAL;
-        // size of the buttons
         c.ipady = 30;
         panel.add(captureButton, c);
 
@@ -117,19 +109,13 @@ public class ScreenCapture extends JFrame implements ActionListener, WindowListe
         c.gridy = 3;
         panel.add(blankImageButton, c);
 
-        // add help button
         c.gridy = 4;
         panel.add(new HelpButton(this), c);
-
-        // layout for this JFrame
         this.setLayout(new BorderLayout());
-        // add buttons panel to the JFrame
         this.add(panel, BorderLayout.WEST);
 
         // open blank image
         updateEditor();
-
-        // add it to this JFrame
         this.add(editor, BorderLayout.EAST);
     }
 
@@ -143,17 +129,16 @@ public class ScreenCapture extends JFrame implements ActionListener, WindowListe
                 uploading = true;
                 updateButtons();
                 new Thread(() -> {
-                    AbstractUploader uploader = UploadProvider.getProvider();
-                    String url = uploader.upload(editor.getImage());
+                    Uploader uploader = UploaderProvider.getUploader();
+                    url = uploader.upload(editor.getImage());
                     if (url == null) {
                         logger.log(Level.SEVERE, "Failed to upload image.");
                         return;
                     }
+                    uploading = false;
+                    StringSelection selection = new StringSelection(url);
+                    CLIPBOARD.setContents(selection, null);
                     SwingUtilities.invokeLater(() -> {
-                        ScreenCapture.this.url = url;
-                        uploading = false;
-                        StringSelection selection = new StringSelection(url);
-                        CLIPBOARD.setContents(selection, null);
                         updateButtons();
                         uploadDoneDialog();
                     });
@@ -164,7 +149,7 @@ public class ScreenCapture extends JFrame implements ActionListener, WindowListe
 
     private void uploadDoneDialog() {
         if (url != null) {
-            String[] options = new String[] { "Open In Browser" };
+            String[] options = { "Open In Browser" };
             int response = JOptionPane.showOptionDialog(null, "Link copied to clipboard", "Upload success!",
                     JOptionPane.DEFAULT_OPTION, JOptionPane.PLAIN_MESSAGE, null, options, options[0]);
             if (response == 0) {
@@ -217,21 +202,11 @@ public class ScreenCapture extends JFrame implements ActionListener, WindowListe
             screenshot.dispose();
         }
         this.setVisible(false);
-        screenshot = new Screenshot(new ScreenshotCallback() {
-
-            @Override
-            public void onSuccess(BufferedImage image) {
-                ScreenCapture.this.setVisible(true);
-                if (image != null) {
-                    CLIPBOARD.setContents(new TransferableImage(image), null);
-                    updateEditor();
-                }
-            }
-
-            @Override
-            public void onFailure(Exception e) {
-                ScreenCapture.this.setVisible(true);
-                logger.log(Level.SEVERE, "Failed to take a new screenshot", e);
+        screenshot = new Screenshot(image -> {
+            ScreenCapture.this.setVisible(true);
+            if (image != null) {
+                CLIPBOARD.setContents(new TransferableImage(image), null);
+                updateEditor();
             }
         });
         return screenshot;

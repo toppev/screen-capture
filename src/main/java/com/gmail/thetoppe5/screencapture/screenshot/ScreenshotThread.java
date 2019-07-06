@@ -1,9 +1,11 @@
 package com.gmail.thetoppe5.screencapture.screenshot;
 
+import java.awt.Image;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.Robot;
 import java.awt.image.BufferedImage;
+import java.util.function.Consumer;
 import java.util.logging.Level;
 
 import javax.swing.JFrame;
@@ -15,10 +17,10 @@ public class ScreenshotThread extends Thread {
 
     private final JPanel panel;
     private final long wait;
-    private final ScreenshotCallback callback;
+    private final Consumer<Image> callback;
     private final JFrame frame;
 
-    public ScreenshotThread(JFrame frame, JPanel panel, long wait, ScreenshotCallback callback) {
+    public ScreenshotThread(JFrame frame, JPanel panel, long wait, Consumer<Image> callback) {
         this.frame = frame;
         this.panel = panel;
         this.wait = wait;
@@ -46,9 +48,9 @@ public class ScreenshotThread extends Thread {
             // take the screenshot
             Robot robot = new Robot();
             BufferedImage image = robot.createScreenCapture(rec);
-            callback.onSuccess(image);
+            callback.accept(image);
         } catch (Exception e) {
-            e.printStackTrace();
+            ScreenCapture.getLogger().log(Level.SEVERE, "Failed to take screenshot", e);
         }
     }
 

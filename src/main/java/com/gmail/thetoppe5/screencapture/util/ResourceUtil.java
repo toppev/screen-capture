@@ -5,7 +5,7 @@ import java.util.logging.Level;
 
 import com.gmail.thetoppe5.screencapture.ScreenCapture;
 
-public class ResourceUtil {
+public final class ResourceUtil {
 
     private ResourceUtil() {
     }

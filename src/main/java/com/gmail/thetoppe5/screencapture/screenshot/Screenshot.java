@@ -1,7 +1,9 @@
 package com.gmail.thetoppe5.screencapture.screenshot;
 
 import java.awt.Color;
+import java.awt.Image;
 import java.awt.Point;
+import java.util.function.Consumer;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -18,9 +20,9 @@ public class Screenshot extends JFrame {
 
     private JPanel panel;
     private JButton button;
-    private ScreenshotCallback callback;
+    private Consumer<Image> callback;
 
-    public Screenshot(ScreenshotCallback callback) {
+    public Screenshot(Consumer<Image> callback) {
         this.setTitle("Screen Capturer");
         this.setSize(400, 400);
         this.setLocationRelativeTo(null);
@@ -28,7 +30,6 @@ public class Screenshot extends JFrame {
         this.getRootPane().setWindowDecorationStyle(JRootPane.FRAME);
         this.setBackground(new Color(0, 0, 0, 0));
         this.setAlwaysOnTop(true);
-
         this.callback = callback;
 
         panel = new JPanel();

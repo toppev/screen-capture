@@ -25,7 +25,7 @@ import com.google.gson.JsonParser;
  * Implementation to upload to Imgur
  *
  */
-public class ImgurUploader implements AbstractUploader {
+public class ImgurUploader implements Uploader {
 
     private static final String WEBSITE_URL = "https://api.imgur.com/3/upload";
     private static final String CLIENT_ID = "c614c9715157d42";

@@ -2,7 +2,11 @@ package com.gmail.thetoppe5.screencapture.uploader;
 
 import java.awt.image.BufferedImage;
 
-public interface AbstractUploader {
+/**
+ * Uploader interface. Contains only one method {@link #upload(BufferedImage)}
+ *
+ */
+public interface Uploader {
 
     /**
      * Uploads the given image
@@ -11,6 +15,6 @@ public interface AbstractUploader {
      *            BufferedImage to upload
      * @return url of the uploaded image as String
      */
-    public String upload(BufferedImage image);
+    String upload(BufferedImage image);
 
 }
