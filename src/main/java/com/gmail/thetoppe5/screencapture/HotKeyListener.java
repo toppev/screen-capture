@@ -1,20 +1,20 @@
 package com.gmail.thetoppe5.screencapture;
 
-import java.awt.KeyboardFocusManager;
+import com.gmail.thetoppe5.screencapture.screenshot.Screenshot;
+import com.gmail.thetoppe5.screencapture.util.TransferableImage;
+
+import javax.imageio.ImageIO;
+import javax.swing.FocusManager;
+import javax.swing.*;
+import javax.swing.filechooser.FileNameExtensionFilter;
+import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.logging.Level;
-
-import javax.imageio.ImageIO;
-import javax.swing.FocusManager;
-import javax.swing.JFileChooser;
-import javax.swing.JFrame;
-import javax.swing.filechooser.FileNameExtensionFilter;
-
-import com.gmail.thetoppe5.screencapture.screenshot.Screenshot;
-import com.gmail.thetoppe5.screencapture.util.TransferableImage;
 
 public class HotKeyListener {
 
@@ -44,8 +44,7 @@ public class HotKeyListener {
             // import from disk
             if (ctrl && key == KeyEvent.VK_I) {
                 JFileChooser importer = new JFileChooser();
-                importer.setFileFilter(
-                        new FileNameExtensionFilter("Files supported by ImageIO", ImageIO.getReaderFileSuffixes()));
+                importer.setFileFilter(new FileNameExtensionFilter("Files supported by ImageIO", ImageIO.getReaderFileSuffixes()));
                 if (importer.showOpenDialog(screenCapture) == JFileChooser.APPROVE_OPTION) {
                     File file = importer.getSelectedFile();
                     try {
@@ -72,7 +71,12 @@ public class HotKeyListener {
                 Screenshot ss = screenCapture.newScreenshot();
                 ss.setVisible(true);
                 ss.setExtendedState(JFrame.MAXIMIZED_BOTH);
-                ss.takeScreenshot();
+                new Timer().schedule(new TimerTask() {
+                    @Override
+                    public void run() {
+                        ss.takeScreenshot();
+                    }
+                }, 500);
                 return true;
             }
             // try to upload
