@@ -9,9 +9,12 @@ You can also draw on a blank background or create a new background with selected
 Currently only Imgur is supported.
 
 #### Shortcuts
-- ESCAPE - quit.
-- CTRL + N - opens the screenshot area selection frame.
-- CTRL + A - takes a full screen screenshot.
-- CTRL + U - uploads the image to Imgur.
-- CTRL + S - save the image to disk.
-- CTRL + I - import image from disk
+
+| Key(s)  | Description |
+| ------------- | ------------- |
+| `ESC`  | Quit  |
+| `CTRL + N`  | Open the screenshot area selection frame  |
+| `CTRL + A` |  Takes a full screen screenshot | 
+| `CTRL + U` |  Uploads the image to Imgur | 
+| `CTRL + S` |  Save the image to disk | 
+| `CTRL + I` |  Import image from disk | 
