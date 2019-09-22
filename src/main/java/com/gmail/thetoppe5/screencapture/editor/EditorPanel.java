@@ -1,42 +1,22 @@
 package com.gmail.thetoppe5.screencapture.editor;
 
-import java.awt.BasicStroke;
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.Point;
-import java.awt.RenderingHints;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.awt.event.MouseMotionListener;
-import java.awt.event.MouseWheelEvent;
-import java.awt.event.MouseWheelListener;
+import com.gmail.thetoppe5.screencapture.ScreenCapture;
+
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.*;
 import java.awt.image.BufferedImage;
 import java.awt.image.ColorModel;
 import java.awt.image.WritableRaster;
-
-import javax.swing.BorderFactory;
-import javax.swing.JColorChooser;
-import javax.swing.JFrame;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.SwingUtilities;
-
-import com.gmail.thetoppe5.screencapture.ScreenCapture;
 
 public class EditorPanel extends JPanel implements MouseListener, MouseMotionListener, MouseWheelListener {
 
     private static final long serialVersionUID = -4754990559531832558L;
 
     private final ScreenCapture screenCapture;
-
+    BufferedImage backupImage;
     // image stuff
     private BufferedImage image;
-    BufferedImage backupImage;
-
     // stuff concerning painting (modes, size, last clicked point)
     private EditMode editMode = EditMode.FREE;
     private int size = 10;
@@ -50,11 +30,9 @@ public class EditorPanel extends JPanel implements MouseListener, MouseMotionLis
 
     /**
      * Create a new EditorPanel
-     * 
-     * @param image
-     *            the image to edit
-     * @param screenCapture
-     *            instance of the ScreenCapture
+     *
+     * @param image         the image to edit
+     * @param screenCapture instance of the ScreenCapture
      */
     public EditorPanel(BufferedImage image, ScreenCapture screenCapture) {
         this.screenCapture = screenCapture;
@@ -71,10 +49,23 @@ public class EditorPanel extends JPanel implements MouseListener, MouseMotionLis
     }
 
     /**
+     * Copies the image
+     *
+     * @param bi BufferedImage to copy
+     *
+     * @return a new copy of the image
+     */
+    private static BufferedImage deepCopy(BufferedImage bi) {
+        ColorModel cm = bi.getColorModel();
+        boolean isAlphaPremultiplied = cm.isAlphaPremultiplied();
+        WritableRaster raster = bi.copyData(null);
+        return new BufferedImage(cm, raster, isAlphaPremultiplied, null);
+    }
+
+    /**
      * Update this EditorPanel's image that is being edited
-     * 
-     * @param newImage
-     *            the new image
+     *
+     * @param newImage the new image
      */
     public void updateImage(BufferedImage newImage) {
         if (newImage != null) {
@@ -107,12 +98,13 @@ public class EditorPanel extends JPanel implements MouseListener, MouseMotionLis
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
-        // draw the image
+        // draw the image if it's not null
         if (image != null) {
             g.drawImage(image, 0, 0, this);
         }
     }
 
+    // not private because EditorTextField needs to access this
     Graphics2D createGraphics() {
         Graphics2D g = image.createGraphics();
         g.setColor(color);
@@ -128,11 +120,9 @@ public class EditorPanel extends JPanel implements MouseListener, MouseMotionLis
 
     /**
      * Handle mouse events
-     * 
-     * @param x
-     *            the x of the mouse event
-     * @param y
-     *            the y of the mouse event
+     *
+     * @param x the x of the mouse event
+     * @param y the y of the mouse event
      */
     private void mouse(int x, int y) {
         Graphics2D g = createGraphics();
@@ -145,12 +135,9 @@ public class EditorPanel extends JPanel implements MouseListener, MouseMotionLis
                 g.drawLine(clicked != null ? clicked.x : p.x, clicked != null ? clicked.y : p.y, x, y);
                 // store the last clicked Point
                 clicked = p;
-            }
-
-            else if (editMode == EditMode.ERASE) {
+            } else if (editMode == EditMode.ERASE) {
                 // handle erasing paintings
                 g.setPaintMode();
-
                 x -= size / 2;
                 y -= size / 2;
                 int w = size;
@@ -173,7 +160,7 @@ public class EditorPanel extends JPanel implements MouseListener, MouseMotionLis
                     h = image.getHeight() - y;
                     y = image.getHeight() - h;
                 }
-                // ignore invalid width and height parameters
+                // ignore width and height if outside the image borders
                 if (w < 1 || w >= image.getWidth() || h < 1 || h >= image.getHeight()) {
                     return;
                 }
@@ -181,7 +168,6 @@ public class EditorPanel extends JPanel implements MouseListener, MouseMotionLis
                 BufferedImage subImage = backupImage.getSubimage(x, y, w, h);
                 // and draw it in the current image
                 g.drawImage(subImage, x, y, w, h, this);
-
             }
             screenCapture.repaint();
         }
@@ -202,7 +188,7 @@ public class EditorPanel extends JPanel implements MouseListener, MouseMotionLis
 
     /**
      * Sets the size of the painting tool/eraser
-     * 
+     *
      * @param size
      */
     private void setCurrentSize(int size) {
@@ -211,18 +197,33 @@ public class EditorPanel extends JPanel implements MouseListener, MouseMotionLis
         updateTitle();
     }
 
-    /**
-     * Copies the image
-     * 
-     * @param bi
-     *            BufferedImage to copy
-     * @return a new copy of the image
-     */
-    private static BufferedImage deepCopy(BufferedImage bi) {
-        ColorModel cm = bi.getColorModel();
-        boolean isAlphaPremultiplied = cm.isAlphaPremultiplied();
-        WritableRaster raster = bi.copyData(null);
-        return new BufferedImage(cm, raster, isAlphaPremultiplied, null);
+    @Override
+    public void mouseDragged(MouseEvent e) {
+        if (e.getButton() != 2) {
+            mouse(e.getX(), e.getY());
+        }
+    }
+
+    @Override
+    public void mouseMoved(MouseEvent e) {
+        // No need to do anything
+    }
+
+    @Override
+    public void mouseWheelMoved(MouseWheelEvent e) {
+        int newSize = this.size + e.getWheelRotation();
+        if (newSize < 1) {
+            newSize = 1;
+        }
+        if (newSize > getWidth() || newSize > getHeight()) {
+            newSize--;
+        }
+        setCurrentSize(newSize);
+    }
+
+    @Override
+    public void mouseClicked(MouseEvent e) {
+        // No need to do anything
     }
 
     @Override
@@ -239,48 +240,27 @@ public class EditorPanel extends JPanel implements MouseListener, MouseMotionLis
             textField.setLocation(clicked);
             this.add(textField);
             textField.requestFocusInWindow();
-            return;
+
         } else {
             this.requestFocusInWindow();
             lastClickedTime = System.currentTimeMillis();
             if (editMode == EditMode.TEXT) {
                 editMode = EditMode.FREE;
             }
-        }
-        editMode = e.getButton() == 3 ? EditMode.ERASE : EditMode.FREE;
-        color = colorChooser.getColor();
-        updateTitle();
-        if (e.getButton() == 2) {
-            colorChooserFrame.setLocation(this.getLocation());
-            colorChooserFrame.setVisible(true);
+            editMode = e.getButton() == 3 ? EditMode.ERASE : EditMode.FREE;
+            color = colorChooser.getColor();
+            updateTitle();
+            // Open color chooser with middle-click
+            if (e.getButton() == 2) {
+                colorChooserFrame.setLocation(this.getLocation());
+                colorChooserFrame.setVisible(true);
+            }
         }
     }
 
     @Override
     public void mouseReleased(MouseEvent e) {
         clicked = null;
-    }
-
-    @Override
-    public void mouseDragged(MouseEvent e) {
-        if (e.getButton() != 2) {
-            mouse(e.getX(), e.getY());
-        }
-    }
-
-    @Override
-    public void mouseWheelMoved(MouseWheelEvent e) {
-        int newSize = this.size + e.getWheelRotation();
-        if (newSize < 1)
-            newSize = 1;
-        if (newSize > getWidth() || newSize > getHeight())
-            newSize--;
-        setCurrentSize(newSize);
-    }
-
-    @Override
-    public void mouseClicked(MouseEvent e) {
-        // No need to do anything
     }
 
     @Override
@@ -293,14 +273,9 @@ public class EditorPanel extends JPanel implements MouseListener, MouseMotionLis
         // No need to do anything
     }
 
-    @Override
-    public void mouseMoved(MouseEvent e) {
-        // No need to do anything
-    }
-
     /**
      * Get the current image
-     * 
+     *
      * @return the current image
      */
     public BufferedImage getImage() {
