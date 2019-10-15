@@ -1,12 +1,16 @@
 package com.gmail.thetoppe5.screencapture;
 
-import java.awt.BorderLayout;
-import java.awt.Cursor;
-import java.awt.Dimension;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
-import java.awt.Toolkit;
+import com.gmail.thetoppe5.screencapture.editor.EditorPanel;
+import com.gmail.thetoppe5.screencapture.screenshot.Screenshot;
+import com.gmail.thetoppe5.screencapture.uploader.Uploader;
+import com.gmail.thetoppe5.screencapture.uploader.UploaderProvider;
+import com.gmail.thetoppe5.screencapture.userhelp.HelpButton;
+import com.gmail.thetoppe5.screencapture.util.DesktopUtil;
+import com.gmail.thetoppe5.screencapture.util.ImageUtil;
+import com.gmail.thetoppe5.screencapture.util.TransferableImage;
+
+import javax.swing.*;
+import java.awt.*;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.StringSelection;
@@ -19,21 +23,6 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.SwingUtilities;
-
-import com.gmail.thetoppe5.screencapture.editor.EditorPanel;
-import com.gmail.thetoppe5.screencapture.screenshot.Screenshot;
-import com.gmail.thetoppe5.screencapture.uploader.Uploader;
-import com.gmail.thetoppe5.screencapture.uploader.UploaderProvider;
-import com.gmail.thetoppe5.screencapture.userhelp.HelpButton;
-import com.gmail.thetoppe5.screencapture.util.DesktopUtil;
-import com.gmail.thetoppe5.screencapture.util.ImageUtil;
-import com.gmail.thetoppe5.screencapture.util.TransferableImage;
 
 public class ScreenCapture extends JFrame implements ActionListener, WindowListener {
 
@@ -50,13 +39,10 @@ public class ScreenCapture extends JFrame implements ActionListener, WindowListe
     private JButton captureButton;
     private JButton blankImageButton;
 
+    private JComboBox<Uploader> uploaderSelector = new JComboBox<>(UploaderProvider.getUploaders());
+
     private String url;
     private boolean uploading;
-
-    public static void main(String[] args) {
-        logger.info("Starting screen-capture...");
-        SwingUtilities.invokeLater(ScreenCapture::new);
-    }
 
     /**
      * Initializes everything and builds the window
@@ -75,6 +61,15 @@ public class ScreenCapture extends JFrame implements ActionListener, WindowListe
 
         setVisible(true);
         updateButtons();
+    }
+
+    public static void main(String[] args) {
+        logger.info("Starting screen-capture...");
+        SwingUtilities.invokeLater(ScreenCapture::new);
+    }
+
+    public static Logger getLogger() {
+        return logger;
     }
 
     /**
@@ -111,6 +106,28 @@ public class ScreenCapture extends JFrame implements ActionListener, WindowListe
 
         c.gridy = 4;
         panel.add(new HelpButton(this), c);
+
+        // Render the Class#getSimpleName()
+        uploaderSelector.setRenderer(new DefaultListCellRenderer() {
+
+            @Override
+            public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+                super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+                setText(value.getClass().getSimpleName());
+                return this;
+            }
+        });
+        uploaderSelector.addActionListener(a -> {
+            Object obj = uploaderSelector.getSelectedItem();
+            if (obj != null) {
+                UploaderProvider.setUploader((Uploader) obj);
+            }
+            logger.info("Selected uploader: " + UploaderProvider.getUploader().getClass().getName());
+        });
+        c.ipady = 4;
+        c.gridy = 5;
+        panel.add(uploaderSelector, c);
+
         this.setLayout(new BorderLayout());
         this.add(panel, BorderLayout.WEST);
 
@@ -149,9 +166,8 @@ public class ScreenCapture extends JFrame implements ActionListener, WindowListe
 
     private void uploadDoneDialog() {
         if (url != null) {
-            String[] options = { "Open In Browser" };
-            int response = JOptionPane.showOptionDialog(null, "Link copied to clipboard", "Upload success!",
-                    JOptionPane.DEFAULT_OPTION, JOptionPane.PLAIN_MESSAGE, null, options, options[0]);
+            String[] options = {"Open In Browser"};
+            int response = JOptionPane.showOptionDialog(null, "Link copied to clipboard", "Upload success!", JOptionPane.DEFAULT_OPTION, JOptionPane.PLAIN_MESSAGE, null, options, options[0]);
             if (response == 0) {
                 DesktopUtil.openInBrowser(url);
             }
@@ -167,7 +183,7 @@ public class ScreenCapture extends JFrame implements ActionListener, WindowListe
 
     /**
      * Gets the image from clipboard
-     * 
+     *
      * @return image from clipboard
      */
     public BufferedImage getClipboardImage() {
@@ -236,7 +252,7 @@ public class ScreenCapture extends JFrame implements ActionListener, WindowListe
 
     /**
      * Gets the current image in editor or if null then clipboard image
-     * 
+     *
      * @return
      */
     public BufferedImage getImage() {
@@ -249,17 +265,7 @@ public class ScreenCapture extends JFrame implements ActionListener, WindowListe
     }
 
     @Override
-    public void windowActivated(WindowEvent arg0) {
-        updateButtons();
-    }
-
-    @Override
-    public void windowDeiconified(WindowEvent arg0) {
-        updateButtons();
-    }
-
-    @Override
-    public void windowClosed(WindowEvent arg0) {
+    public void windowOpened(WindowEvent arg0) {
         // No need to do anything
     }
 
@@ -269,7 +275,7 @@ public class ScreenCapture extends JFrame implements ActionListener, WindowListe
     }
 
     @Override
-    public void windowDeactivated(WindowEvent arg0) {
+    public void windowClosed(WindowEvent arg0) {
         // No need to do anything
     }
 
@@ -279,16 +285,22 @@ public class ScreenCapture extends JFrame implements ActionListener, WindowListe
     }
 
     @Override
-    public void windowOpened(WindowEvent arg0) {
+    public void windowDeiconified(WindowEvent arg0) {
+        updateButtons();
+    }
+
+    @Override
+    public void windowActivated(WindowEvent arg0) {
+        updateButtons();
+    }
+
+    @Override
+    public void windowDeactivated(WindowEvent arg0) {
         // No need to do anything
     }
 
     public EditorPanel getEditor() {
         return editor;
-    }
-
-    public static Logger getLogger() {
-        return logger;
     }
 
 }

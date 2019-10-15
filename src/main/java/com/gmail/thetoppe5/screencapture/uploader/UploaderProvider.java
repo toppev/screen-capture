@@ -6,8 +6,9 @@ package com.gmail.thetoppe5.screencapture.uploader;
  */
 public final class UploaderProvider {
 
+    private static Uploader[] uploaders = new Uploader[]{new ToppeDevUploader(), new ImgurUploader()};
     private static Uploader uploader;
-    private static Uploader defaultProvider = new ImgurUploader();
+    private static Uploader defaultProvider = uploaders[0];
 
     private UploaderProvider() {
     }
@@ -42,6 +43,10 @@ public final class UploaderProvider {
      */
     public static Uploader getDefaultProvider() {
         return defaultProvider;
+    }
+
+    public static Uploader[] getUploaders() {
+        return uploaders;
     }
 
 }

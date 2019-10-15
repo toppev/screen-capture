@@ -1,34 +1,38 @@
 package com.gmail.thetoppe5.screencapture.uploader;
 
-import java.awt.image.BufferedImage;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.net.URLEncoder;
-import java.nio.file.Files;
-import java.util.logging.Level;
-
-import javax.imageio.ImageIO;
-
-import org.apache.xerces.impl.dv.util.Base64;
-
 import com.gmail.thetoppe5.screencapture.ScreenCapture;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import org.apache.xerces.impl.dv.util.Base64;
+
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.*;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.util.logging.Level;
 
 /**
  * Implementation to upload to Imgur
- *
  */
 public class ImgurUploader implements Uploader {
 
     private static final String WEBSITE_URL = "https://api.imgur.com/3/upload";
     private static final String CLIENT_ID = "c614c9715157d42";
+
+    private static String toBase64(File file) {
+        try (FileInputStream fs = new FileInputStream(file)) {
+            byte[] b = new byte[(int) file.length()];
+            fs.read(b);
+            return URLEncoder.encode(Base64.encode(b), StandardCharsets.UTF_8.name());
+        } catch (Exception e) {
+            ScreenCapture.getLogger().log(Level.SEVERE, "Failed to convert to base64", e);
+            return null;
+        }
+    }
 
     @Override
     public String upload(BufferedImage image) {
@@ -73,24 +77,12 @@ public class ImgurUploader implements Uploader {
 
             // delete the file
             Files.delete(imageFile.toPath());
-            ScreenCapture.getLogger().log(Level.INFO, "Uploading took {0} ms\n. URL: {1}",
-                    new Object[] { System.currentTimeMillis() - started, url });
+            ScreenCapture.getLogger().log(Level.INFO, "Uploading took {0} ms\n. URL: {1}", new Object[]{System.currentTimeMillis() - started, url});
             return url;
         } catch (IOException e) {
             ScreenCapture.getLogger().log(Level.SEVERE, "Failed to get response from uploaded image", e);
         }
         return null;
-    }
-
-    private static String toBase64(File file) {
-        try (FileInputStream fs = new FileInputStream(file)) {
-            byte[] b = new byte[(int) file.length()];
-            fs.read(b);
-            return URLEncoder.encode(Base64.encode(b), "UTF-8");
-        } catch (Exception e) {
-            ScreenCapture.getLogger().log(Level.SEVERE, "Failed to convert to base64", e);
-            return null;
-        }
     }
 
 }
