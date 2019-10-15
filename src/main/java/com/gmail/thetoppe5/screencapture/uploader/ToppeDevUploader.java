@@ -1,6 +1,7 @@
 package com.gmail.thetoppe5.screencapture.uploader;
 
 import com.gmail.thetoppe5.screencapture.ScreenCapture;
+import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import org.apache.xerces.impl.dv.util.Base64;
@@ -13,22 +14,21 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.util.Collections;
 import java.util.logging.Level;
 
 /**
  * Implementation to upload to Imgur
  */
-public class ImgurUploader implements Uploader {
+public class ToppeDevUploader implements Uploader {
 
     private static final String WEBSITE_URL = "http://localhost:8080/upload";
-    private static final String CLIENT_ID = "c614c9715157d42";
 
     private static String toBase64(File file) {
         try (FileInputStream fs = new FileInputStream(file)) {
             byte[] b = new byte[(int) file.length()];
             fs.read(b);
             return URLEncoder.encode(Base64.encode(b), StandardCharsets.UTF_8.name());
-            //return URLEncoder.encode(Base64.encode(b), StandardCharsets.UTF_8);
         } catch (Exception e) {
             ScreenCapture.getLogger().log(Level.SEVERE, "Failed to convert to base64", e);
             return null;
@@ -53,7 +53,6 @@ public class ImgurUploader implements Uploader {
             conn.setDoInput(true);
             conn.setDoOutput(true);
             conn.setRequestMethod("POST");
-            conn.setRequestProperty("Authorization", "Client-ID " + CLIENT_ID);
             conn.setReadTimeout(1000 * 20);
             conn.connect();
         } catch (IOException e) {
@@ -62,7 +61,8 @@ public class ImgurUploader implements Uploader {
 
         // write
         try (OutputStreamWriter writer = new OutputStreamWriter(conn.getOutputStream())) {
-            writer.write("image=" + toBase64(imageFile));
+            UploadEntry entry = new UploadEntry("30D", imageFile);
+            writer.write(new Gson().toJson(entry));
             writer.flush();
         } catch (IOException e) {
             ScreenCapture.getLogger().log(Level.SEVERE, "Failed to write image OutputStream", e);
@@ -73,8 +73,7 @@ public class ImgurUploader implements Uploader {
             BufferedReader reader = new BufferedReader(new InputStreamReader(conn.getInputStream()));
             JsonParser parser = new JsonParser();
             JsonObject json = (JsonObject) parser.parse(reader);
-            JsonObject data = json.get("data").getAsJsonObject();
-            String url = "http://i.imgur.com/" + data.get("id").getAsString() + ".png";
+            String url = "http://img.toppe.dev/" + json.get("id").getAsString() + ".png";
 
             // delete the file
             Files.delete(imageFile.toPath());
@@ -86,4 +85,14 @@ public class ImgurUploader implements Uploader {
         return null;
     }
 
+    private class UploadEntry {
+
+        private String expiration;
+        private String image;
+
+        public UploadEntry(String expiration, File image) throws IOException {
+            this.expiration = expiration;
+            this.image = toBase64(image);
+        }
+    }
 }
