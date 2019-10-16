@@ -22,7 +22,8 @@ import java.util.logging.Level;
  */
 public class ToppeDevUploader implements Uploader {
 
-    private static final String WEBSITE_URL = "http://localhost:8080/upload";
+    // Will change to https later, or just redirect on the server-side
+    private static final String WEBSITE_URL = "http://img.toppe.dev/upload";
 
     private static String toBase64(File file) {
         try (FileInputStream fs = new FileInputStream(file)) {
@@ -73,7 +74,7 @@ public class ToppeDevUploader implements Uploader {
             BufferedReader reader = new BufferedReader(new InputStreamReader(conn.getInputStream()));
             JsonParser parser = new JsonParser();
             JsonObject json = (JsonObject) parser.parse(reader);
-            String url = "http://img.toppe.dev/" + json.get("id").getAsString() + ".png";
+            String url = "http://img.toppe.dev/img/" + json.get("id").getAsString();
 
             // delete the file
             Files.delete(imageFile.toPath());
