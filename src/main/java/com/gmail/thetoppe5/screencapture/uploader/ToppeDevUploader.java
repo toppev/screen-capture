@@ -24,7 +24,9 @@ import java.util.logging.Level;
 public class ToppeDevUploader implements Uploader {
 
     // Will change to https later, or just redirect on the server-side
-    private static final String WEBSITE_URL = "http://img.toppe.dev/api/upload";
+    //private static final String BASE_URL = "http://img.toppe.dev";
+    private static final String BASE_URL = "http://localhost:8080";
+    private static final String WEBSITE_URL = BASE_URL + "/api/upload";
 
     @Override
     public String upload(BufferedImage image) {
@@ -64,7 +66,7 @@ public class ToppeDevUploader implements Uploader {
             BufferedReader reader = new BufferedReader(new InputStreamReader(conn.getInputStream()));
             JsonParser parser = new JsonParser();
             JsonObject json = (JsonObject) parser.parse(reader);
-            String url = "http://img.toppe.dev/" + json.get("id").getAsString();
+            String url = BASE_URL + "/" + json.get("id").getAsString();
 
             // delete the file
             Files.delete(imageFile.toPath());
