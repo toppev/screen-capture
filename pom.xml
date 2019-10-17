@@ -3,7 +3,7 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
-	<groupId>com.gmail.thetoppe5</groupId>
+	<groupId>dev.toppe.img</groupId>
 	<artifactId>screencapture</artifactId>
 	<version>0.2.0</version>
 	<packaging>jar</packaging>
@@ -25,7 +25,7 @@
 				<configuration>
 					<archive>
 						<manifest>
-							<mainClass>com.gmail.thetoppe5.screencapture.ScreenCapture</mainClass>
+							<mainClass>dev.toppe.img.screencapture.ScreenCapture</mainClass>
 						</manifest>
 					</archive>
 					<descriptorRefs>

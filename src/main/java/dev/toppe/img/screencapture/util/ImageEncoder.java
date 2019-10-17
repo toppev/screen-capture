@@ -1,6 +1,6 @@
-package com.gmail.thetoppe5.screencapture.util;
+package dev.toppe.img.screencapture.util;
 
-import com.gmail.thetoppe5.screencapture.ScreenCapture;
+import dev.toppe.img.screencapture.ScreenCapture;
 import org.apache.xerces.impl.dv.util.Base64;
 
 import java.io.File;
