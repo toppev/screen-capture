@@ -1,6 +1,7 @@
 package com.gmail.thetoppe5.screencapture.uploader;
 
 import com.gmail.thetoppe5.screencapture.ScreenCapture;
+import com.gmail.thetoppe5.screencapture.util.ImageEncoder;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import org.apache.xerces.impl.dv.util.Base64;
@@ -22,17 +23,6 @@ public class ImgurUploader implements Uploader {
 
     private static final String WEBSITE_URL = "https://api.imgur.com/3/upload";
     private static final String CLIENT_ID = "c614c9715157d42";
-
-    private static String toBase64(File file) {
-        try (FileInputStream fs = new FileInputStream(file)) {
-            byte[] b = new byte[(int) file.length()];
-            fs.read(b);
-            return URLEncoder.encode(Base64.encode(b), StandardCharsets.UTF_8.name());
-        } catch (Exception e) {
-            ScreenCapture.getLogger().log(Level.SEVERE, "Failed to convert to base64", e);
-            return null;
-        }
-    }
 
     @Override
     public String upload(BufferedImage image) {
@@ -61,7 +51,7 @@ public class ImgurUploader implements Uploader {
 
         // write
         try (OutputStreamWriter writer = new OutputStreamWriter(conn.getOutputStream())) {
-            writer.write("image=" + toBase64(imageFile));
+            writer.write("image=" + ImageEncoder.toBase64(imageFile));
             writer.flush();
         } catch (IOException e) {
             ScreenCapture.getLogger().log(Level.SEVERE, "Failed to write image OutputStream", e);

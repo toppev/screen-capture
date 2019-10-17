@@ -1,6 +1,7 @@
 package com.gmail.thetoppe5.screencapture.uploader;
 
 import com.gmail.thetoppe5.screencapture.ScreenCapture;
+import com.gmail.thetoppe5.screencapture.util.ImageEncoder;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -24,17 +25,6 @@ public class ToppeDevUploader implements Uploader {
 
     // Will change to https later, or just redirect on the server-side
     private static final String WEBSITE_URL = "http://img.toppe.dev/upload";
-
-    private static String toBase64(File file) {
-        try (FileInputStream fs = new FileInputStream(file)) {
-            byte[] b = new byte[(int) file.length()];
-            fs.read(b);
-            return URLEncoder.encode(Base64.encode(b), StandardCharsets.UTF_8.name());
-        } catch (Exception e) {
-            ScreenCapture.getLogger().log(Level.SEVERE, "Failed to convert to base64", e);
-            return null;
-        }
-    }
 
     @Override
     public String upload(BufferedImage image) {
@@ -93,7 +83,7 @@ public class ToppeDevUploader implements Uploader {
 
         public UploadEntry(String expiration, File image) throws IOException {
             this.expiration = expiration;
-            this.image = toBase64(image);
+            this.image = ImageEncoder.toBase64(image);
         }
     }
 }
