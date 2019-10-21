@@ -19,10 +19,7 @@ import java.util.logging.Level;
  */
 public class ToppeDevUploader implements Uploader {
 
-    // Will change to https later, or just redirect on the server-side
-    private static final String BASE_URL = "http://img.toppe.dev";
-    // For testing
-    //private static final String BASE_URL = "http://localhost:8080";
+    private static final String BASE_URL = "https://img.toppe.dev";
     private static final String WEBSITE_URL = BASE_URL + "/api/upload";
 
     @Override
