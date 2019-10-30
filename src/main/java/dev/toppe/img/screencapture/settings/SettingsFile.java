@@ -5,6 +5,7 @@ import dev.toppe.img.screencapture.uploader.Uploader;
 import dev.toppe.img.screencapture.uploader.UploaderProvider;
 
 import java.io.*;
+import java.lang.reflect.InvocationTargetException;
 import java.util.Properties;
 
 /**
@@ -28,6 +29,7 @@ public class SettingsFile {
             for (Uploader uploader : UploaderProvider.getUploaders()) {
                 props.setProperty(uploader.getClass().getName() + ".token", uploader.getToken());
             }
+            props.setProperty("uploader", UploaderProvider.getUploader().getClass().getName());
             if(!settingsFile.exists()) {
                 ScreenCapture.getLogger().info("Settings file does not exist. Creating one at " + getSettingsFile().getPath());
             }
@@ -53,9 +55,19 @@ public class SettingsFile {
                         uploader.setToken(token);
                     }
                 }
+                String className = props.getProperty("uploader");
+                Class<?> clazz = null;
+                try {
+                    clazz = Class.forName(className);
+                } catch (ClassNotFoundException e) {
+                    ScreenCapture.getLogger().warning("Failed to instantiate " + className + ". Using default uploader");
+                }
+                if(clazz != null) {
+                    UploaderProvider.setUploader((Uploader) clazz.getConstructor(null).newInstance(null));
+                }
                 ScreenCapture.getLogger().info("Settings loaded from " + getSettingsFile().getPath());
             }
-        }catch(IOException e) {
+        }catch(IOException | NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException e) {
             ScreenCapture.getLogger().warning("Failed to load settings" + e);
         }
     }
