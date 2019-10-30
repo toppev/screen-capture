@@ -25,11 +25,13 @@ public class ImgurUploader implements Uploader {
     public UploadLink upload(BufferedImage image) {
         long started = System.currentTimeMillis();
 
-        File imageFile = new File("clipboard.png");
+        File imageFile = null;
         try {
+            imageFile = File.createTempFile("screencapture" , ".png");
             ImageIO.write(image, "png", imageFile);
         } catch (IOException e) {
             ScreenCapture.getLogger().log(Level.SEVERE, "Failed to write image file", e);
+            return null;
         }
 
         // connect
