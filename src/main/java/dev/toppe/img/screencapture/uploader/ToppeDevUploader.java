@@ -27,6 +27,7 @@ public class ToppeDevUploader implements Uploader {
     public UploadLink upload(BufferedImage image) {
         long started = System.currentTimeMillis();
 
+
         File imageFile = new File("clipboard.png");
         try {
             ImageIO.write(image, "png", imageFile);
@@ -49,7 +50,7 @@ public class ToppeDevUploader implements Uploader {
 
         // write
         try (OutputStreamWriter writer = new OutputStreamWriter(conn.getOutputStream())) {
-            UploadEntry entry = new UploadEntry("30D", imageFile);
+            UploadEntry entry = new UploadEntry("30D", getToken(), imageFile);
             writer.write(new Gson().toJson(entry));
             writer.flush();
         } catch (IOException e) {
@@ -88,9 +89,11 @@ public class ToppeDevUploader implements Uploader {
 
         private String expiration;
         private String image;
+        private String token;
 
-        public UploadEntry(String expiration, File image) throws IOException {
+        public UploadEntry(String expiration, String token, File image) throws IOException {
             this.expiration = expiration;
+            this.token = token;
             this.image = ImageEncoder.toBase64(image);
         }
     }
