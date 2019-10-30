@@ -19,11 +19,12 @@ import java.util.logging.Level;
  */
 public class ToppeDevUploader implements Uploader {
 
-    private static final String BASE_URL = "https://img.toppe.dev";
+    private static final String BASE_URL = "localhost:8080";
     private static final String WEBSITE_URL = BASE_URL + "/api/upload";
+    private String token = "none";
 
     @Override
-    public String upload(BufferedImage image) {
+    public UploadLink upload(BufferedImage image) {
         long started = System.currentTimeMillis();
 
         File imageFile = new File("clipboard.png");
@@ -60,16 +61,27 @@ public class ToppeDevUploader implements Uploader {
             BufferedReader reader = new BufferedReader(new InputStreamReader(conn.getInputStream()));
             JsonParser parser = new JsonParser();
             JsonObject json = (JsonObject) parser.parse(reader);
-            String url = BASE_URL + "/" + json.get("id").getAsString();
-
+            String id =  json.get("id").getAsString();
+            String url = BASE_URL + "/" + id;
+            String imageUrl = BASE_URL + "/img/" + id + ".png";
             // delete the file
             Files.delete(imageFile.toPath());
             ScreenCapture.getLogger().log(Level.INFO, "Uploading took {0} ms\n. URL: {1}", new Object[]{System.currentTimeMillis() - started, url});
-            return url;
+            return new UploadLink(imageUrl, url);
         } catch (IOException e) {
             ScreenCapture.getLogger().log(Level.SEVERE, "Failed to get response from uploaded image", e);
         }
         return null;
+    }
+
+    @Override
+    public String getToken() {
+        return token;
+    }
+
+    @Override
+    public void setToken(String token) {
+        this.token = token;
     }
 
     private class UploadEntry {

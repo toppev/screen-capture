@@ -1,5 +1,7 @@
 package dev.toppe.img.screencapture.uploader;
 
+import java.sql.SQLOutput;
+
 /**
  * Helper class to manage which {@link Uploader} will be use
  *

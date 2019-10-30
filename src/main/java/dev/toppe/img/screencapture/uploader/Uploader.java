@@ -13,8 +13,12 @@ public interface Uploader {
      * 
      * @param image
      *            BufferedImage to upload
-     * @return url of the uploaded image as String
+     * @return UploadLink containing the links
      */
-    String upload(BufferedImage image);
+    UploadLink upload(BufferedImage image);
+
+    String getToken();
+
+    void setToken(String token);
 
 }

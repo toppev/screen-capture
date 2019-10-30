@@ -1,6 +1,9 @@
 package dev.toppe.img.screencapture;
 
 import dev.toppe.img.screencapture.editor.EditorPanel;
+import dev.toppe.img.screencapture.settings.SettingsFile;
+import dev.toppe.img.screencapture.settings.SettingsFrame;
+import dev.toppe.img.screencapture.uploader.UploadLink;
 import dev.toppe.img.screencapture.uploader.Uploader;
 import dev.toppe.img.screencapture.util.ImageUtil;
 import dev.toppe.img.screencapture.screenshot.Screenshot;
@@ -21,6 +24,7 @@ import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.util.concurrent.CompletableFuture;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -39,10 +43,11 @@ public class ScreenCapture extends JFrame implements ActionListener, WindowListe
     private JButton captureButton;
     private JButton blankImageButton;
 
-    private JComboBox<Uploader> uploaderSelector = new JComboBox<>(UploaderProvider.getUploaders());
-
-    private String url;
+    private UploadLink url;
     private boolean uploading;
+
+    private SettingsFile settingsFile;
+
 
     /**
      * Initializes everything and builds the window
@@ -61,6 +66,8 @@ public class ScreenCapture extends JFrame implements ActionListener, WindowListe
 
         setVisible(true);
         updateButtons();
+        settingsFile = new SettingsFile();
+        CompletableFuture.runAsync(settingsFile::load);
     }
 
     public static void main(String[] args) {
@@ -84,9 +91,9 @@ public class ScreenCapture extends JFrame implements ActionListener, WindowListe
         captureButton.setText("New Screenshot");
         captureButton.addActionListener(this);
         captureButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        c.insets = new Insets(25, 10, 25, 10);
+        c.insets = new Insets(20, 10, 20, 10);
         c.fill = GridBagConstraints.HORIZONTAL;
-        c.ipady = 30;
+        c.ipady = 25;
         panel.add(captureButton, c);
 
         uploadButton = new JButton();
@@ -94,39 +101,20 @@ public class ScreenCapture extends JFrame implements ActionListener, WindowListe
         uploadButton.addActionListener(this);
         uploadButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
         uploadButton.setEnabled(getClipboardImage() != null);
-        c.gridy = 2;
+        c.gridy = 1;
         panel.add(uploadButton, c);
 
         blankImageButton = new JButton();
         blankImageButton.setText("Blank Image");
         blankImageButton.addActionListener(this);
         blankImageButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        c.gridy = 3;
+        c.gridy++;
         panel.add(blankImageButton, c);
-
-        c.gridy = 4;
+        c.gridy++;
+        panel.add(new SettingsFrame.SettingsButton(this), c);
+        c.gridy++;
         panel.add(new HelpButton(this), c);
-
-        // Render the Class#getSimpleName()
-        uploaderSelector.setRenderer(new DefaultListCellRenderer() {
-
-            @Override
-            public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
-                super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
-                setText(value.getClass().getSimpleName());
-                return this;
-            }
-        });
-        uploaderSelector.addActionListener(a -> {
-            Object obj = uploaderSelector.getSelectedItem();
-            if (obj != null) {
-                UploaderProvider.setUploader((Uploader) obj);
-            }
-            logger.info("Selected uploader: " + UploaderProvider.getUploader().getClass().getName());
-        });
-        c.ipady = 4;
-        c.gridy = 5;
-        panel.add(uploaderSelector, c);
+        c.gridy++;
 
         this.setLayout(new BorderLayout());
         this.add(panel, BorderLayout.WEST);
@@ -153,7 +141,8 @@ public class ScreenCapture extends JFrame implements ActionListener, WindowListe
                         return;
                     }
                     uploading = false;
-                    StringSelection selection = new StringSelection(url);
+                    // Copy the url to the image, not the website
+                    StringSelection selection = new StringSelection(url.getImageLink());
                     CLIPBOARD.setContents(selection, null);
                     SwingUtilities.invokeLater(() -> {
                         updateButtons();
@@ -169,7 +158,8 @@ public class ScreenCapture extends JFrame implements ActionListener, WindowListe
             String[] options = {"Open In Browser"};
             int response = JOptionPane.showOptionDialog(null, "Link copied to clipboard", "Upload success!", JOptionPane.DEFAULT_OPTION, JOptionPane.PLAIN_MESSAGE, null, options, options[0]);
             if (response == 0) {
-                DesktopUtil.openInBrowser(url);
+                // Open the website, not the image
+                DesktopUtil.openInBrowser(url.getWebLink());
             }
         }
     }
@@ -303,4 +293,7 @@ public class ScreenCapture extends JFrame implements ActionListener, WindowListe
         return editor;
     }
 
+    public SettingsFile getSettingsFile() {
+        return settingsFile;
+    }
 }
