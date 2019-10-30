@@ -72,6 +72,7 @@ public class SettingsFrame extends JDialog {
             @Override
             public void actionPerformed(ActionEvent e) {
                 UploaderProvider.getUploader().setToken(tokenField.getText());
+                SettingsFrame.this.dispose();
                 host.getSettingsFile().save();
             }
         });
