@@ -8,13 +8,14 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Arrays;
 
 public class SettingsFrame extends JDialog {
 
 
     // "Width:" and "Height:" labels
     private JTextField tokenField;
-    private JComboBox<Uploader> uploaderSelector = new JComboBox<>(UploaderProvider.getUploaders());
+    private JComboBox<Uploader> uploaderSelector;
 
     // ok (to create a new background) and cancel buttons
     private JButton ok;
@@ -29,6 +30,9 @@ public class SettingsFrame extends JDialog {
         c.insets = new Insets(15, 5, 5, 5);
         this.add(new JLabel("Uploader"), c);
         c.gridx = 1;
+        uploaderSelector = new JComboBox<>(UploaderProvider.getUploaders());
+        uploaderSelector.setSelectedItem(UploaderProvider.getUploader());
+        System.out.println(UploaderProvider.getUploader());
         // Render the Class#getSimpleName()
         uploaderSelector.setRenderer(new DefaultListCellRenderer() {
 
@@ -41,12 +45,8 @@ public class SettingsFrame extends JDialog {
         });
         uploaderSelector.addActionListener(a -> {
             Object obj = uploaderSelector.getSelectedItem();
-            if (obj != null) {
-                UploaderProvider.setUploader((Uploader) obj);
-            }
-            Uploader uploader = UploaderProvider.getUploader();
-            tokenField.setText(uploader.getToken());
-            ScreenCapture.getLogger().info("Selected uploader: " + uploader.getClass().getName());
+            tokenField.setText(((Uploader)obj).getToken());
+            ScreenCapture.getLogger().info("Selected uploader: " + obj.getClass().getName());
         });
         add(uploaderSelector, c);
         c.gridy = 2;
@@ -57,7 +57,6 @@ public class SettingsFrame extends JDialog {
         tokenField.setColumns(12);
         this.add(tokenField, c);
 
-
         c.gridx = 0;
         c.gridy = 5;
         cancel = new JButton("Cancel");
@@ -67,14 +66,15 @@ public class SettingsFrame extends JDialog {
         c.gridx = 1;
         ok = new JButton("OK");
         // when pressed the blank image updates
-        ok.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
+        ok.addActionListener(e -> {
+            Object obj = uploaderSelector.getSelectedItem();
+            if (obj != null) {
+                UploaderProvider.setUploader((Uploader) obj);
                 UploaderProvider.getUploader().setToken(tokenField.getText());
-                SettingsFrame.this.dispose();
-                host.getSettingsFile().save();
+                ScreenCapture.getLogger().info("Saved uploader: " + obj.getClass().getName());
             }
+            SettingsFrame.this.dispose();
+            host.getSettingsFile().save();
         });
         this.add(ok, c);
         this.setVisible(true);

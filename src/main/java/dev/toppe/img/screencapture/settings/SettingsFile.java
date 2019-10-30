@@ -6,6 +6,8 @@ import dev.toppe.img.screencapture.uploader.UploaderProvider;
 
 import java.io.*;
 import java.lang.reflect.InvocationTargetException;
+import java.util.Arrays;
+import java.util.Optional;
 import java.util.Properties;
 
 /**
@@ -56,14 +58,16 @@ public class SettingsFile {
                     }
                 }
                 String className = props.getProperty("uploader");
-                Class<?> clazz = null;
                 try {
-                    clazz = Class.forName(className);
+                    Class<?> clazz = Class.forName(className);
+                    if(clazz != null) {
+                        Class<?> finalClazz = clazz;
+                        Optional<Uploader> op = Arrays.stream(UploaderProvider.getUploaders()).filter(u -> u.getClass() == finalClazz).findAny();
+                        UploaderProvider.setUploader(op.orElse((Uploader) clazz.getConstructor(null).newInstance(null)));
+                        ScreenCapture.getLogger().info("Uploader set: " + UploaderProvider.getUploader());
+                    }
                 } catch (ClassNotFoundException e) {
                     ScreenCapture.getLogger().warning("Failed to instantiate " + className + ". Using default uploader");
-                }
-                if(clazz != null) {
-                    UploaderProvider.setUploader((Uploader) clazz.getConstructor(null).newInstance(null));
                 }
                 ScreenCapture.getLogger().info("Settings loaded from " + getSettingsFile().getPath());
             }
