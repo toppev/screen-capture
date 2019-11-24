@@ -19,7 +19,7 @@ import java.util.logging.Level;
  */
 public class ToppeDevUploader implements Uploader {
 
-    private static final String BASE_URL = "localhost:8080";
+    private static final String BASE_URL = "https://img.toppe.dev";
     private static final String WEBSITE_URL = BASE_URL + "/api/upload";
     private String token = "none";
 
