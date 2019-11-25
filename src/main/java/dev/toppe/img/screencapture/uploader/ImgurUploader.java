@@ -75,6 +75,10 @@ public class ImgurUploader implements Uploader {
         return null;
     }
 
+    @Override
+    public String getBrowseHistoryURL() {
+        return null;
+    }
 
     @Override
     public String getToken() {

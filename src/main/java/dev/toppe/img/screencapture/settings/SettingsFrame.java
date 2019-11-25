@@ -3,6 +3,7 @@ package dev.toppe.img.screencapture.settings;
 import dev.toppe.img.screencapture.ScreenCapture;
 import dev.toppe.img.screencapture.uploader.Uploader;
 import dev.toppe.img.screencapture.uploader.UploaderProvider;
+import dev.toppe.img.screencapture.util.DesktopUtil;
 
 import javax.swing.*;
 import java.awt.*;
@@ -23,7 +24,7 @@ public class SettingsFrame extends JDialog {
 
     public void create(ScreenCapture host) {
         // create the frame and buttons et
-        this.setSize(400, 200);
+        this.setSize(400, 250);
         this.setLocationRelativeTo(host);
         this.setLayout(new GridBagLayout());
         GridBagConstraints c = new GridBagConstraints();
@@ -49,6 +50,7 @@ public class SettingsFrame extends JDialog {
             ScreenCapture.getLogger().info("Selected uploader: " + obj.getClass().getName());
         });
         add(uploaderSelector, c);
+
         c.gridy = 2;
         c.gridx = 0;
         this.add(new JLabel("Token:"), c);
@@ -56,6 +58,19 @@ public class SettingsFrame extends JDialog {
         tokenField = new JTextField(UploaderProvider.getUploader().getToken());
         tokenField.setColumns(12);
         this.add(tokenField, c);
+
+        c.gridx = 1;
+        c.gridy = 4;
+        JButton history = new JButton("Browse Token History");
+        history.setMargin(new Insets(1, 2, 1, 2));
+        this.add(history, c);
+        history.setEnabled(((Uploader) uploaderSelector.getSelectedItem()).isBrowseHistory());
+        uploaderSelector.addActionListener(l -> {
+            history.setEnabled(((Uploader) uploaderSelector.getSelectedItem()).isBrowseHistory());
+        });
+        history.addActionListener(l -> {
+            DesktopUtil.openInBrowser(((Uploader) uploaderSelector.getSelectedItem()).getBrowseHistoryURL());
+        });
 
         c.gridx = 0;
         c.gridy = 5;
@@ -65,7 +80,6 @@ public class SettingsFrame extends JDialog {
         this.add(cancel, c);
         c.gridx = 1;
         ok = new JButton("OK");
-        // when pressed the blank image updates
         ok.addActionListener(e -> {
             Object obj = uploaderSelector.getSelectedItem();
             if (obj != null) {

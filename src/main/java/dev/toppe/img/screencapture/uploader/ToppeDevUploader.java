@@ -86,6 +86,16 @@ public class ToppeDevUploader implements Uploader {
         this.token = token;
     }
 
+    @Override
+    public String getBrowseHistoryURL() {
+        return "https://img.toppe.dev/uploader/" + token;
+    }
+
+    @Override
+    public boolean isBrowseHistory() {
+        return token != null && token.trim().length() > 0 && !token.equals("none");
+    }
+
     private class UploadEntry {
 
         private String expiration;

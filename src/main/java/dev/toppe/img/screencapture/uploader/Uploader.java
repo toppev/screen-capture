@@ -21,4 +21,9 @@ public interface Uploader {
 
     void setToken(String token);
 
+    String getBrowseHistoryURL();
+
+    default boolean isBrowseHistory() {
+        return getBrowseHistoryURL() != null;
+    }
 }
